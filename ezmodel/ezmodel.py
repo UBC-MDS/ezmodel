@@ -13,9 +13,7 @@ class Score(object):
     """"""
 
     def __init__(self):
-        """
-
-        """
+        """"""
         pass
 
     def mse(self):
@@ -27,6 +25,17 @@ class Score(object):
         pass
 
     def adj_r2(self):
+        """"""
+        pass
+
+    def auc(self):
+        """"""
+        pass
+
+    def _sensitivity(self):
+        pass
+
+    def _specificity(self):
         """"""
         pass
 
