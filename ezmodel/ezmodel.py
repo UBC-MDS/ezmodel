@@ -20,13 +20,13 @@ class Score(object):
 
 
         Args:
-            model (sklearn object): Previously initialized sklearn classifier or regression object with fit & predict methods.
-                                    Can also be a pipeline with several steps.
+            model (sklearn object): Previously initialized, untrained sklearn classifier or regression object 
+                                    with fit & predict methods. Can also be a pipeline with several steps.
 
             score_type (list or str): Should be one of: [mse, r2, adj_r2, auc, ...].
                                       If a list, then a list containing several of those entries as elements.
-            x (ndarray): (d x n) array of features.
-            y (ndarray): (1 x n) Array of labels
+            x (ndarray): (n x d) array of features.
+            y (ndarray): (n x 1) Array of labels
 
         Returns:
             None. Sets attributes of the score function, and if the optional values are provided, computes the score.
@@ -66,8 +66,8 @@ class Score(object):
         Computes values for scores if x and y were not provided at intialization.
 
         Args:
-            x (ndarray): (d x n) array of features.
-            y (ndarray): (1 x n) array of labels.
+            x (ndarray): (n x d) array of features.
+            y (ndarray): (n x 1) array of labels.
             score_type (list or str): Should be one of: [mse, r2, adj_r2, auc, ...].
                                       If a list, then a list containing several of those entries as elements.
 
