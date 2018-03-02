@@ -1,10 +1,52 @@
 def test_train_plot():
-    """"""
+    """
+    Creates plot of training and test error for an arbitrary sklearn model.
+
+    Args:
+        model (sklearn object): Previously initialized, untrained sklearn classifier or regression object
+                                    with fit & predict methods. Can also be a pipeline with several steps.
+
+        score_type (list or str): Should be one of: [mse, r2, adj_r2, auc, ...].
+                                      If a list, then a list containing several of those entries as elements.
+
+        x (ndarray): (n x d) array of features.
+        y (ndarray): (n x 1) Array of labels
+
+        hyperparameter (string): Hyperparameter of model to iterate over creating plot
+
+        param_range (list): Range of hyperparameter values to iterate over
+
+
+    Returns:
+        none. Calls plt.show() to display plot
+
+
+    """
     pass
 
 
-def feature_importance_plot():
-    """"""
+def regularization_plot():
+    """
+     Plots coeffiecients from results of Lasso, Ridge, or Logistic Regression model
+
+
+    Args:
+        model (sklearn object): Previously initialized, untrained sklearn regression object
+                                with fit & predict methods. Model has to be one of the following:
+                                LogisticRegression(), Ridge(), Lasso().
+                                Can also be a pipeline with several steps containing one of the above models.
+
+        alpha (): Penalty constant multiplying the regularization term. Larger value corresponds to stronger
+                  regularization. Can be list or float.
+
+        x (ndarray): (n x d) array of features.
+        y (ndarray): (n x 1) Array of labels
+
+    Returns:
+        none. Calls plt.show() to display plot. Plot shown depends on type of alpha argument: If list, returns number
+        of non-zero features; if float: displays plot of coefficients magnitude.
+
+    """
     pass
 
 
@@ -74,6 +116,8 @@ class Score(object):
         Returns:
             scores (dict): Keys are score_type, values are the numeric result.
         """
+
+        pass
 
 def _coerce(x):
     """
