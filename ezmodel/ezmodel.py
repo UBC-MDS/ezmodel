@@ -1,4 +1,4 @@
-def test_train_plot():
+def test_train_plot(model, score_type, x, y, hyperparameter, param_range):
     """
     Creates plot of training and test error for an arbitrary sklearn model.
 
@@ -79,6 +79,11 @@ class Score(object):
     #     """ Overwrite __str__ method to print information about the scores contained in the object when called."""
     #     pass
 
+    def _accuracy(selfs):
+        """ Computes Accuracy of a model. Number of correct predictions over total number of predictions.
+            Uses self.model, self.x and self.y """
+        pass
+
     def _mse(self):
         """ Computes Mean Squared Error. Uses self.model, self.x and self.y"""
         pass
@@ -125,7 +130,6 @@ def _coerce(x):
 
     Args:
         x (): Data to be passed to a model.
-
 
     """
     pass
