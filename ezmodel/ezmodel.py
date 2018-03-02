@@ -65,10 +65,10 @@ class Score(object):
             model (sklearn object): Previously initialized, untrained sklearn classifier or regression object 
                                     with fit & predict methods. Can also be a pipeline with several steps.
 
-            score_type (list or str): Should be one of: [mse, r2, adj_r2, auc, ...].
+            score_type (list or str): Default='mse'. Should be one of: [mse, r2, adj_r2, auc, ...].
                                       If a list, then a list containing several of those entries as elements.
-            x (ndarray): (n x d) array of features.
-            y (ndarray): (n x 1) Array of labels
+            x (ndarray): Default=None. (n x d) array of features.
+            y (ndarray): Default=None. (n x 1) Array of labels
 
         Returns:
             None. Sets attributes of the score function, and if the optional values are provided, computes the score.
@@ -79,7 +79,7 @@ class Score(object):
     #     """ Overwrite __str__ method to print information about the scores contained in the object when called."""
     #     pass
 
-    def _accuracy(selfs):
+    def _accuracy(self):
         """ Computes Accuracy of a model. Number of correct predictions over total number of predictions.
             Uses self.model, self.x and self.y """
         pass
@@ -115,7 +115,7 @@ class Score(object):
         Args:
             x (ndarray): (n x d) array of features.
             y (ndarray): (n x 1) array of labels.
-            score_type (list or str): Should be one of: [mse, r2, adj_r2, auc, ...].
+            score_type (list or str): Default=self.score_type. Should be one of: [mse, r2, adj_r2, auc, ...].
                                       If a list, then a list containing several of those entries as elements.
 
         Returns:
