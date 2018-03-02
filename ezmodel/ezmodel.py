@@ -1,4 +1,4 @@
-def test_train_plot():
+def test_train_plot(model, score_type, x, y, hyperparameter, param_range):
     """
     Creates plot of training and test error for an arbitrary sklearn model.
 
@@ -18,14 +18,14 @@ def test_train_plot():
 
 
     Returns:
-        none. Calls plt.show() to display plot
+        None. Calls plt.show() to display plot
 
 
     """
     pass
 
 
-def regularization_plot():
+def regularization_plot(model, alpha, tol=1e-7, x, y):
     """
      Plots coeffiecients from results of Lasso, Ridge, or Logistic Regression model
 
@@ -36,14 +36,16 @@ def regularization_plot():
                                 LogisticRegression(), Ridge(), Lasso().
                                 Can also be a pipeline with several steps containing one of the above models.
 
-        alpha (): Penalty constant multiplying the regularization term. Larger value corresponds to stronger
+        alpha (float or list): Penalty constant multiplying the regularization term. Larger value corresponds to stronger
                   regularization. Can be list or float.
+
+        tol (float): Coefficients less than this will be treated as zero if a list is is given for alpha argument.
 
         x (ndarray): (n x d) array of features.
         y (ndarray): (n x 1) Array of labels
 
     Returns:
-        none. Calls plt.show() to display plot. Plot shown depends on type of alpha argument: If list, returns number
+        None. Calls plt.show() to display plot. Plot shown depends on type of alpha argument: If list, returns number
         of non-zero features; if float: displays plot of coefficients magnitude.
 
     """
@@ -62,7 +64,7 @@ class Score(object):
 
 
         Args:
-            model (sklearn object): Previously initialized, untrained sklearn classifier or regression object 
+            model (sklearn object): Previously initialized, untrained sklearn classifier or regression object
                                     with fit & predict methods. Can also be a pipeline with several steps.
 
             score_type (list or str): Should be one of: [mse, r2, adj_r2, auc, ...].
