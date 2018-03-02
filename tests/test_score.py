@@ -1,54 +1,6 @@
-def test_train_plot(model, score_type, x, y, hyperparameter, param_range):
-    """
-    Creates plot of training and test error for an arbitrary sklearn model.
-
-    Args:
-        model (sklearn object): Previously initialized, untrained sklearn classifier or regression object
-                                    with fit & predict methods. Can also be a pipeline with several steps.
-
-        score_type (list or str): Should be one of: [mse, r2, adj_r2, auc, ...].
-                                      If a list, then a list containing several of those entries as elements.
-
-        x (ndarray): (n x d) array of features.
-        y (ndarray): (n x 1) Array of labels
-
-        hyperparameter (string): Hyperparameter of model to iterate over creating plot
-
-        param_range (list): Range of hyperparameter values to iterate over
-
-
-    Returns:
-        none. Calls plt.show() to display plot
-
-
-    """
-    pass
-
-
-def regularization_plot():
-    """
-     Plots coeffiecients from results of Lasso, Ridge, or Logistic Regression model
-
-
-    Args:
-        model (sklearn object): Previously initialized, untrained sklearn regression object
-                                with fit & predict methods. Model has to be one of the following:
-                                LogisticRegression(), Ridge(), Lasso().
-                                Can also be a pipeline with several steps containing one of the above models.
-
-        alpha (): Penalty constant multiplying the regularization term. Larger value corresponds to stronger
-                  regularization. Can be list or float.
-
-        x (ndarray): (n x d) array of features.
-        y (ndarray): (n x 1) Array of labels
-
-    Returns:
-        none. Calls plt.show() to display plot. Plot shown depends on type of alpha argument: If list, returns number
-        of non-zero features; if float: displays plot of coefficients magnitude.
-
-    """
-    pass
-
+from sklearn.ensemble import RandomForestClassifier as RFC
+import numpy as np
+import pytest
 
 class Score(object):
     """ Scoring object. Allows computation of an arbitrary score metric on an arbitrary sklearn model. """
@@ -62,7 +14,7 @@ class Score(object):
 
 
         Args:
-            model (sklearn object): Previously initialized, untrained sklearn classifier or regression object 
+            model (sklearn object): Previously initialized, untrained sklearn classifier or regression object
                                     with fit & predict methods. Can also be a pipeline with several steps.
 
             score_type (list or str): Default='mse'. Should be one of: [mse, r2, adj_r2, auc, ...].
@@ -125,12 +77,56 @@ class Score(object):
         #   score_type = self.score_type
         pass
 
-def _coerce(x):
-    """
-    Utility function to coerce data into the correct types to be passed to sklearn
 
-    Args:
-        x (): Data to be passed to a model.
+class TestClass:
+    def test_setters_no_data(self):
+        """ Ensures that all setters are working correctly if no data is passed. """
+        score_instance = Score(RFC(), 'auc')
+        assert isinstance(score_instance.model, RFC)
+        assert isinstance(score_instance.score_type, str)
+        assert score_instance.x is None
+        assert score_instance.y is None
+        assert score_instance.scores is None
 
-    """
-    pass
+    def test_input_exceptions_no_data(self):
+        """ Ensures that improper inputs are throwing exceptions if no data is passed. """
+
+        with pytest.raises(TypeError):
+            Score('hello', 'mse')
+        with pytest.raises(TypeError):
+            Score(RFC(), 5)
+
+    def test_setters(self):
+        """ Ensures that all setters are working correctly if data is passed. """
+        score_instance = Score(RFC(), 'auc', np.array([[5, 5], [10, 20]]), np.array([[1, 2], [1, 2]]))
+        assert isinstance(score_instance.model, RFC)
+        assert isinstance(score_instance.score_type, str)
+        assert isinstance(score_instance.x, np.ndarray)
+        assert isinstance(score_instance.y, np.ndarray)
+        assert isinstance(score_instance.scores, dict)
+
+    def test_input_exceptions(self):
+        """ Ensures that improper inputs are throwing exceptions if data is passed. """
+        x = np.array([[5, 5], [10, 20]])
+        y = np.array([1, 2])
+
+        with pytest.raises(TypeError):
+            Score('hello', 'mse', x, y)
+        with pytest.raises(TypeError):
+            Score(RFC(), 5, x, y)
+        with pytest.raises(TypeError):
+            Score(RFC(), 'mse', x, 'y')
+        with pytest.raises(TypeError):
+            Score(RFC(), 'mse', 'x', y)
+
+        y_prime = np.array([1, 2, 3, 4, 5, 6])
+        with pytest.raises(IndexError):
+            Score(RFC(), 'mse', x, y_prime)
+
+        x_prime = np.array([[1, 2], [3, 4], [5, 6]])
+        with pytest.raises(IndexError):
+            Score(RFC(), 'mse', x_prime, y)
+
+
+
+
