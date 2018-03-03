@@ -45,8 +45,10 @@ def regularization_plot(model, alpha, tol=1e-7, x, y):
         y (ndarray): (n x 1) Array of labels
 
     Returns:
-        None. Calls plt.show() to display plot. Plot shown depends on type of alpha argument: If list, returns number
-        of non-zero features; if float: displays plot of coefficients magnitude.
+        List of counts of non-zero coefficients if alpha is a list, or list of coefficients if alpha is a float.
+        Calls plt.show() to display plot.
+        Plot shown depends on type of alpha argument. If list, then returns plot of non-zero features,
+        and if float, then displays plot of coefficients' magnitudes.
 
     """
     pass
@@ -120,14 +122,3 @@ class Score(object):
         """
 
         pass
-
-def _coerce(x):
-    """
-    Utility function to coerce data into the correct types to be passed to sklearn
-
-    Args:
-        x (): Data to be passed to a model.
-
-
-    """
-    pass
