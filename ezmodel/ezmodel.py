@@ -53,7 +53,7 @@ def regularization_plot():
 class Score(object):
     """ Scoring object. Allows computation of an arbitrary score metric on an arbitrary sklearn model. """
 
-    def __init__(self, model, score_type='mse', x=None, y=None):
+    def __init__(self, model, score_type='mse', x=None, y=None, random_seed=None):
         """
         Constructor for score object. Adds in the model as well as the score type you are looking for.
         # Could score_type be a list?
@@ -69,6 +69,7 @@ class Score(object):
                                       If a list, then a list containing several of those entries as elements.
             x (ndarray): Default=None. (n x d) array of features.
             y (ndarray): Default=None. (n x 1) Array of labels
+            random_state (int): Random state for train_test split and model (if required). Passed to sklearn functions.
 
         Returns:
             None. Sets attributes of the score function, and if the optional values are provided, computes the score.
@@ -119,11 +120,15 @@ class Score(object):
                                       If a list, then a list containing several of those entries as elements.
 
         Returns:
-            scores (dict): Keys are score_type, values are the numeric result.
+            scores (list or dict): If score_type is a list, then keys are score_type, values are a list containing
+                                   training and validation errors.
+                                   If score_type is a string, then scores is a list containing two elements:
+                                   training and validation error.
         """
         # if score_type is None:
         #   score_type = self.score_type
         pass
+
 
 def _coerce(x):
     """

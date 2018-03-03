@@ -1,4 +1,6 @@
 from sklearn.ensemble import RandomForestClassifier as RFC
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
 import numpy as np
 import pytest
 
@@ -25,6 +27,7 @@ class Score(object):
         Returns:
             None. Sets attributes of the score function, and if the optional values are provided, computes the score.
         """
+
         pass
 
     # def __str__(self):
@@ -90,7 +93,6 @@ class TestClass:
 
     def test_input_exceptions_no_data(self):
         """ Ensures that improper inputs are throwing exceptions if no data is passed. """
-
         with pytest.raises(TypeError):
             Score('hello', 'mse')
         with pytest.raises(TypeError):
@@ -107,8 +109,7 @@ class TestClass:
 
     def test_input_exceptions(self):
         """ Ensures that improper inputs are throwing exceptions if data is passed. """
-        x = np.array([[5, 5], [10, 20]])
-        y = np.array([1, 2])
+        x, y  = load_breast_cancer(True)
 
         with pytest.raises(TypeError):
             Score('hello', 'mse', x, y)
@@ -119,13 +120,55 @@ class TestClass:
         with pytest.raises(TypeError):
             Score(RFC(), 'mse', 'x', y)
 
-        y_prime = np.array([1, 2, 3, 4, 5, 6])
-        with pytest.raises(IndexError):
-            Score(RFC(), 'mse', x, y_prime)
+        # y_prime = np.array([1, 2, 3, 4, 5, 6])
+        # with pytest.raises(IndexError):
+        #     Score(RFC(), 'mse', x, y_prime)
+        #
+        # x_prime = np.array([[1, 2], [3, 4], [5, 6]])
+        # with pytest.raises(IndexError):
+        #     Score(RFC(), 'mse', x_prime, y)
 
-        x_prime = np.array([[1, 2], [3, 4], [5, 6]])
-        with pytest.raises(IndexError):
-            Score(RFC(), 'mse', x_prime, y)
+    def test_outputs_str(self):
+        clf = RFC()
+        x, y = load_breast_cancer(True)
+        xt, xv, yt, yv = train_test_split(x,y, test_size=0.2, random_state=1234)
+
+        mse = lambda y_true, y_pred: np.sum((y_true - y_pred)**2)/len(y_pred)
+
+        clf.fit(xt, yt)
+        train_pred = clf.predict(xt)
+        val_pred = clf.predict(xv)
+        explicit_results = [mse(i, j) for i,j in zip([yt,yv], [train_pred, val_pred])]
+
+        score_instance = Score(RFC(), 'mse')
+        score_instance.calculate(x,y)
+        assert isinstance(score_instance.scores, list)
+        assert np.isclose(score_instance.scores, explicit_results)
+
+     def test_outputs_list(self):
+        x, y = load_breast_cancer(True)
+        xt, xv, yt, yv = train_test_split(x,y, test_size=0.2, random_state=1234)
+
+        clf = RFC()
+        clf.fit(xt, yt)
+        train_pred = clf.predict(xt)
+        val_pred = clf.predict(xv)
+
+        mse = lambda y_true, y_pred : np.sum((y_true - y_pred)**2)/len(y_pred)
+        acc = lambda y_true, y_pred : np.mean(y_true == y_pred)
+
+        explicit_results = dict()
+        explicit_results['mse'] = [mse(i, j) for i,j in zip([yt,yv], [train_pred, val_pred])]
+        explicit_results['accuracy'] = [acc(i, j) for i,j in zip([yt,yv], [train_pred, val_pred])]
+
+        score_instance = Score(RFC(), ['mse', 'accuracy'])
+        score_instance.calculate(x,y)
+
+        assert isinstance(score_instance.scores, dict) # Check type of output
+        assert isinstance(score_instance.scores['mse'], list) # Check type of dict values
+        assert isinstance(score_instance.scores['accuracy'], list) # Check type of dict values
+        for key in explicit_results.keys():
+            assert np.isclose(score_instance.scores[key], explicit_results[key]) # Check actual results
 
 
 
