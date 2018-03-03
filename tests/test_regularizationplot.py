@@ -37,9 +37,9 @@ def test_nonzero_coefs_logistic():
     X, y = load_breast_cancer(return_X_y=True)
     tol=1e-7
     mod = LogisticRegression(C=10**-7).fit(X,y)
-    mod_coefs = mod.coef_[0]
+    mod_coefs = np.abs(mod.coef_[0])
     for i in range(len(mod_coefs)):
-        if np.abs(mod_coefs[i]) < tol:
+        if mod_coefs[i] < tol:
             mod_coefs[i]=0
 
     assert mod_coefs == regularization_plot(LogisticRegression(), alpha=10**7, X, y)
