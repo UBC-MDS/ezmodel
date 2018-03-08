@@ -18,7 +18,7 @@ def test_train_plot(model, score_type, x, y, hyperparameter, param_range):
 
 
     Returns:
-        none. Calls plt.show() to display plot
+        None. Calls plt.show() to display plot
 
 
     """
@@ -36,14 +36,14 @@ def regularization_plot():
                                 LogisticRegression(), Ridge(), Lasso().
                                 Can also be a pipeline with several steps containing one of the above models.
 
-        alpha (): Penalty constant multiplying the regularization term. Larger value corresponds to stronger
+        alpha (list or float): Penalty constant multiplying the regularization term. Larger value corresponds to stronger
                   regularization. Can be list or float.
 
         x (ndarray): (n x d) array of features.
         y (ndarray): (n x 1) Array of labels
 
     Returns:
-        none. Calls plt.show() to display plot. Plot shown depends on type of alpha argument: If list, returns number
+        None. Calls plt.show() to display plot. Plot shown depends on type of alpha argument: If list, returns number
         of non-zero features; if float: displays plot of coefficients magnitude.
 
     """
@@ -74,7 +74,41 @@ class Score(object):
         Returns:
             None. Sets attributes of the score function, and if the optional values are provided, computes the score.
         """
-        pass
+
+        supported_scores = ['accuracy', 'mse', 'auc', 'sensitivity', 'specificity', 'r2', 'adj_r2']
+
+        # Type Checking for required arguments:
+        if "sklearn" not in str(type(model)):
+            raise TypeError("Model must be an sklearn classifier or regression object.")
+        if not isinstance(score_type, str):
+            raise TypeError("score_type should be a string")
+        elif score_type not in supported_scores:
+            raise TypeError("{} is not a supported score function. Please try one of: {}".format(score_type, ", ".join(supported_scores)))
+
+        # Check for x and y inputs
+        if x is not None:
+            if y is None:
+                raise TypeError("y must also be supplied if x is supplied.")
+            else:
+                self.model = model
+                self.x = x
+                self.y = y
+                self.score_type = score_type
+                if random_seed is not None:
+                    self.random_seed = random_seed
+
+        if y is not None:
+            if x is None:
+                raise TypeError("x must also be supplied if y is supplied.")
+            else:
+                self.model = model
+                self.x = x
+                self.y = y
+                self.score_type = score_type
+                if random_seed is not None:
+                    self.random_seed = random_seed
+
+
 
     # def __str__(self):
     #     """ Overwrite __str__ method to print information about the scores contained in the object when called."""
@@ -135,7 +169,19 @@ def _coerce(x):
     Utility function to coerce data into the correct types to be passed to sklearn
 
     Args:
-        x (): Data to be passed to a model.
+        x (??): Data to be passed to a model.
 
+    Returns:
+        np.ndarray containing the data from x
+
+    Notes:
+        Works for pandas DataFrames and nested lists currently. Investigating other types that need coercing.
     """
-    pass
+    if isinstance(x, pd.DataFrame):
+        return pd.as_matrix(x)
+    elif isinstance(x, list):
+        return np.asarray(x)
+    elif not isinstance(x, np.ndarray):
+        raise TypeError("{} is currently not supported. Please input a numpy array, pandas DataFrame, or nested list".format(type(x)))
+    else:
+        return x
