@@ -75,38 +75,59 @@ class Score(object):
             None. Sets attributes of the score function, and if the optional values are provided, computes the score.
         """
 
-        supported_scores = ['accuracy', 'mse', 'auc', 'sensitivity', 'specificity', 'r2', 'adj_r2']
+        self.scores_dict = {'accuracy': self._accuracy(), 'mse': self._mse(),
+                            'auc': self._auc(), "sensitivity": self._sensitivity(),
+                            "specificity": self._specificity(), "r2": self._r2(),
+                            'adj_r2': self._adj_r2()}
 
         # Type Checking for required arguments:
+
+        # Checks for model
         if "sklearn" not in str(type(model)):
             raise TypeError("Model must be an sklearn classifier or regression object.")
-        if not isinstance(score_type, str):
-            raise TypeError("score_type should be a string")
-        elif score_type not in supported_scores:
-            raise TypeError("{} is not a supported score function. Please try one of: {}".format(score_type, ", ".join(supported_scores)))
+
+        # Checks for score_type
+        if isinstance(score_type, str):
+            if score_type not in self.scores_dict.keys():
+                raise TypeError("{} is not a supported score function. Please try one of: {}".format(score_type, ", ".join(self.scores_dict.keys())))
+
+        elif isinstance(score_type, list):
+            for i in score_type:
+                if not isinstance(i, str) or i not in self.scores_dict.keys():
+                    raise TypeError("{} is not a valid input to scores_type. Please try one of: {}".format(i, ", ".join(self.scores_dict.keys())))
+        else:
+            raise TypeError("score_type should be a string or a list")
+
+        # Check for random_seed
+        if random_seed is not None:
+            if not isinstance(random_seed, int):
+                raise TypeError("random_seed must be an integer.")
 
         # Check for x and y inputs
         if x is not None:
             if y is None:
                 raise TypeError("y must also be supplied if x is supplied.")
-            else:
+            else:  # Set attributes and compute score for the given data.
                 self.model = model
-                self.x = x
-                self.y = y
+                self.x = _coerce(x)
+                self.y = _coerce(y)
                 self.score_type = score_type
                 if random_seed is not None:
                     self.random_seed = random_seed
 
-        if y is not None:
-            if x is None:
-                raise TypeError("x must also be supplied if y is supplied.")
-            else:
-                self.model = model
-                self.x = x
-                self.y = y
-                self.score_type = score_type
-                if random_seed is not None:
-                    self.random_seed = random_seed
+                self.score = self.calculate(self.x, self.y, self.score_type)
+
+        elif y is not None:  # This will always raise, since we will only get here if x is None
+            raise TypeError("x must also be supplied if y is supplied.")
+
+        else: # If no x and y are passed, set attributes and finish __init__()
+            self.model = model
+            self.score_type = score_type
+            if random_seed is not None:
+                self.random_seed = random_seed
+
+
+
 
 
 
