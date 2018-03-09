@@ -1,4 +1,5 @@
 from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
 import numpy as np
 import pandas as pd
 
@@ -119,7 +120,7 @@ class Score(object):
                 self.score_type = score_type
                 self.random_seed = random_seed
 
-                self.score = self.calculate(self.x, self.y, self.score_type)
+                self.scores = self.calculate(self.x, self.y, self.score_type)
 
         elif y is not None:  # This will always raise, since we will only get here if x is None
             raise TypeError("x must also be supplied if y is supplied.")
@@ -128,12 +129,11 @@ class Score(object):
             self.model = model
             self.score_type = score_type
             self.random_seed = random_seed
-
+            self.scores = None
 
     # def __str__(self):
     #     """ Overwrite __str__ method to print information about the scores contained in the object when called."""
     #     pass
-
 
     def _splitfitnpredict(self):
         """
@@ -145,9 +145,9 @@ class Score(object):
         if self.random_seed is not None:
             xt, xv, yt, yv = train_test_split(self.x, self.y, random_state=self.random_seed)
         else:
-            xt, xv, yt, yv = train_test_split(self.x, self.y, random_state=self.random_seed)
+            xt, xv, yt, yv = train_test_split(self.x, self.y)
 
-        self.model.fit(self)
+        self.model.fit(xt, yt)
         t_pred = self.model.predict(xt)
         v_pred = self.model.predict(xv)
 
@@ -158,12 +158,19 @@ class Score(object):
             Uses self.model, self.x and self.y """
         t_labels, p_labels = self._splitfitnpredict()
 
-        scores = [np.mean(t_labels[0] == p_labels[0]), np.mean(t_labels[1] == p_labels[1])]
+        scores = [np.mean(t_labels[0] == p_labels[0]),
+                  np.mean(t_labels[1] == p_labels[1])]
+
         return scores
 
     def _mse(self):
         """ Computes Mean Squared Error. Uses self.model, self.x and self.y"""
-        pass
+        t_labels, p_labels = self._splitfitnpredict()
+
+        scores = [np.sum((t_labels[0] - p_labels[0])**2)/len(t_labels[0]),
+                  np.sum((t_labels[1] - p_labels[1])**2)/len(t_labels[1])]
+
+        return scores
 
     def _r2(self):
         """ Computes R-Squared. Uses self.model, self.x and self.y """
@@ -178,12 +185,49 @@ class Score(object):
         pass
 
     def _sensitivity(self):
-        """ Computes model sensitivity. Used for AUC. Uses self.model, self.x and self.y """
-        pass
+        """
+        Computes model sensitivity. Used for AUC. Uses self.model, self.x and self.y
+
+        Equal to TP/(TP + FN)
+        """
+         t_labels, p_labels = self._splitfitnpredict()
+
+        scores = [self._truepos(t_labels[0], p_labels[0])/(self._truepos(t_labels[0], p_labels[0]) +
+                                                           self._falseneg(t_labels[0], p_labels[0])),
+
+                  self._truepos(t_labels[1], p_labels[1])/(self._truepos(t_labels[1], p_labels[1]) +
+                                                           self._falseneg(t_labels[1], p_labels[1]))]
+
 
     def _specificity(self):
-        """ Computes model specificity. Used for AUC. Uses self.model, self.x and self.y """
-        pass
+        """
+        Computes model specificity. Used for AUC. Uses self.model, self.x and self.y
+
+        Equal to TN/(TN + FP)
+        """
+        t_labels, p_labels = self._splitfitnpredict()
+
+        scores = [self._trueneg(t_labels[0], p_labels[0])/(self._trueneg(t_labels[0], p_labels[0]) +
+                                                           self._falsepos(t_labels[0], p_labels[0])),
+
+                  self._trueneg(t_labels[1], p_labels[1])/(self._trueneg(t_labels[1], p_labels[1]) +
+                                                           self._falsepos(t_labels[1], p_labels[1]))]
+
+    def _truepos(y_true, y_pred):
+        """ Computes the number of true positives in a set of predictions """
+        return sum([1 for i in range(len(y_true)) if y_true[i] == 1 and y_pred[i] == 1])
+
+    def _falsepos(y_true, y_pred):
+        """ Computes the number of false positives in a set of predictions """
+        return sum([1 for i in range(len(y_true)) if y_true[i] == 0 and y_pred[i] == 1])
+
+    def _falseneg(y_true, y_pred):
+        """ Computes the number of true negatives in a set of predictions """
+        return sum([1 for i in range(len(y_true)) if y_true[i] == 1 and y_pred[i] == 0])
+
+    def _trueneg(y_true, y_pred):
+        """ Computes the number of false negatives in a set of predictions """
+        return sum([1 for i in range(len(y_true)) if y_true[i] == 0 and y_pred[i] == 0])
 
     def calculate(self, x, y, score_type=None):
         """
@@ -213,7 +257,9 @@ class Score(object):
         if isinstance(score_type, str):
             try:
                 scores = self.scores_dict[score_type]
+                self.scores = scores
                 return scores
+
             except KeyError:
                 print("{} is not a supported score function. Please try one of: {}".format(score_type, ", ".join(self.scores_dict.keys())))
 
@@ -226,6 +272,7 @@ class Score(object):
                 except KeyError:
                     print("{} is not a supported score function. Please try one of: {}".format(i, ", ".join(self.scores_dict.keys())))
                     scores[i] = None
+            self.scores = scores
             return scores
 
         else:
