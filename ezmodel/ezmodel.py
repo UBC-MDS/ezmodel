@@ -1,9 +1,3 @@
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
-import numpy as np
-import pandas as pd
-
-
 def test_train_plot(model, score_type, x, y, hyperparameter, param_range):
     """
     Creates plot of training and test error for an arbitrary sklearn model.
@@ -182,7 +176,13 @@ class Score(object):
 
     def _auc(self):
         """ Computes Area Under the Receiver Operator Curve. Uses self.model, self.x and self.y"""
+        # Turns out it is **NOT** trivial to do this in general.
+        # Still looking for a good way to generalize this function.
+
+        sens = self._sensitivity()
+        spec = self._specificity()
         pass
+
 
     def _sensitivity(self):
         """
@@ -190,14 +190,14 @@ class Score(object):
 
         Equal to TP/(TP + FN)
         """
-         t_labels, p_labels = self._splitfitnpredict()
+        t_labels, p_labels = self._splitfitnpredict()
 
         scores = [self._truepos(t_labels[0], p_labels[0])/(self._truepos(t_labels[0], p_labels[0]) +
                                                            self._falseneg(t_labels[0], p_labels[0])),
 
                   self._truepos(t_labels[1], p_labels[1])/(self._truepos(t_labels[1], p_labels[1]) +
                                                            self._falseneg(t_labels[1], p_labels[1]))]
-
+        return scores
 
     def _specificity(self):
         """
@@ -212,20 +212,21 @@ class Score(object):
 
                   self._trueneg(t_labels[1], p_labels[1])/(self._trueneg(t_labels[1], p_labels[1]) +
                                                            self._falsepos(t_labels[1], p_labels[1]))]
+        return scores
 
-    def _truepos(y_true, y_pred):
+    def _truepos(self, y_true, y_pred):
         """ Computes the number of true positives in a set of predictions """
         return sum([1 for i in range(len(y_true)) if y_true[i] == 1 and y_pred[i] == 1])
 
-    def _falsepos(y_true, y_pred):
+    def _falsepos(self, y_true, y_pred):
         """ Computes the number of false positives in a set of predictions """
         return sum([1 for i in range(len(y_true)) if y_true[i] == 0 and y_pred[i] == 1])
 
-    def _falseneg(y_true, y_pred):
+    def _falseneg(self, y_true, y_pred):
         """ Computes the number of true negatives in a set of predictions """
         return sum([1 for i in range(len(y_true)) if y_true[i] == 1 and y_pred[i] == 0])
 
-    def _trueneg(y_true, y_pred):
+    def _trueneg(self, y_true, y_pred):
         """ Computes the number of false negatives in a set of predictions """
         return sum([1 for i in range(len(y_true)) if y_true[i] == 0 and y_pred[i] == 0])
 
