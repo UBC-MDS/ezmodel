@@ -1,3 +1,8 @@
+from sklearn.model_selection import train_test_split
+import numpy as np
+import pandas as pd
+
+
 def test_train_plot(model, score_type, x, y, hyperparameter, param_range):
     """
     Creates plot of training and test error for an arbitrary sklearn model.
@@ -109,11 +114,10 @@ class Score(object):
                 raise TypeError("y must also be supplied if x is supplied.")
             else:  # Set attributes and compute score for the given data.
                 self.model = model
-                self.x = _coerce(x)
-                self.y = _coerce(y)
+                self.x = x
+                self.y = y
                 self.score_type = score_type
-                if random_seed is not None:
-                    self.random_seed = random_seed
+                self.random_seed = random_seed
 
                 self.score = self.calculate(self.x, self.y, self.score_type)
 
@@ -123,22 +127,39 @@ class Score(object):
         else: # If no x and y are passed, set attributes and finish __init__()
             self.model = model
             self.score_type = score_type
-            if random_seed is not None:
-                self.random_seed = random_seed
-
-
-
-
+            self.random_seed = random_seed
 
 
     # def __str__(self):
     #     """ Overwrite __str__ method to print information about the scores contained in the object when called."""
     #     pass
 
+
+    def _splitfitnpredict(self):
+        """
+        Hidden method to split the data in the Score() object, to fit the model, and then to predict labels.
+
+        Returns:
+            Two lists. The first contains the true split labels, the second contains the predicted labels.
+        """
+        if self.random_seed is not None:
+            xt, xv, yt, yv = train_test_split(self.x, self.y, random_state=self.random_seed)
+        else:
+            xt, xv, yt, yv = train_test_split(self.x, self.y, random_state=self.random_seed)
+
+        self.model.fit(self)
+        t_pred = self.model.predict(xt)
+        v_pred = self.model.predict(xv)
+
+        return [yt, yv], [t_pred, v_pred]
+
     def _accuracy(self):
         """ Computes Accuracy of a model. Number of correct predictions over total number of predictions.
             Uses self.model, self.x and self.y """
-        pass
+        t_labels, p_labels = self._splitfitnpredict()
+
+        scores = [np.mean(t_labels[0] == p_labels[0]), np.mean(t_labels[1] == p_labels[1])]
+        return scores
 
     def _mse(self):
         """ Computes Mean Squared Error. Uses self.model, self.x and self.y"""
@@ -180,9 +201,35 @@ class Score(object):
                                    If score_type is a string, then scores is a list containing two elements:
                                    training and validation error.
         """
-        # if score_type is None:
-        #   score_type = self.score_type
-        pass
+        # Type Checking:
+        x = _coerce(x)
+        y = _coerce(y)
+
+        xt, xv, yt, yv = train_test_split()
+
+        if score_type is None:
+            score_type = self.score_type
+
+        if isinstance(score_type, str):
+            try:
+                scores = self.scores_dict[score_type]
+                return scores
+            except KeyError:
+                print("{} is not a supported score function. Please try one of: {}".format(score_type, ", ".join(self.scores_dict.keys())))
+
+        elif isinstance(score_type, list):
+            scores = dict()
+            for i in score_type:
+                try:
+                    c_score = self.scores_dict[i]
+                    scores[i] = c_score
+                except KeyError:
+                    print("{} is not a supported score function. Please try one of: {}".format(i, ", ".join(self.scores_dict.keys())))
+                    scores[i] = None
+            return scores
+
+        else:
+            return TypeError("score_type must be a list or string")
 
 
 def _coerce(x):
