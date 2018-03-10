@@ -30,7 +30,7 @@ def test_train_plot(model, score_type, x, y, hyperparameter, param_range):
     pass
 
 
-def regularization_plot():
+def regularization_plot(model, alpha, tol=1e-7, x, y):
     """
      Plots coeffiecients from results of Lasso, Ridge, or Logistic Regression model
 
@@ -41,16 +41,19 @@ def regularization_plot():
                                 LogisticRegression(), Ridge(), Lasso().
                                 Can also be a pipeline with several steps containing one of the above models.
 
-        alpha (list or float): Penalty constant multiplying the regularization term. Larger value corresponds to stronger
-                  regularization. Can be list or float.
+        alpha (float or list): Penalty constant multiplying the regularization term. Larger value corresponds to stronger
+                               regularization. Can be list or float.
+
+        tol (float): Coefficients less than this will be treated as zero if a list is is given for alpha argument.
 
         x (ndarray): (n x d) array of features.
         y (ndarray): (n x 1) Array of labels
 
     Returns:
-        None. Calls plt.show() to display plot. Plot shown depends on type of alpha argument: If list, returns number
-        of non-zero features; if float: displays plot of coefficients magnitude.
-
+        List of counts of non-zero coefficients if alpha is a list, or list of coefficients if alpha is a float.
+        Calls plt.show() to display plot.
+        Plot shown depends on type of alpha argument. If list, then returns plot of non-zero features,
+        and if float, then displays plot of coefficients' magnitudes.
     """
     pass
 
