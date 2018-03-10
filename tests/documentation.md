@@ -1,14 +1,15 @@
 
 ### `regularization_plot`
 
-Conditional statements and corresponding test from top to bottom:
+Conditional statements and corresponding test, as labelled in the code. Branches are labelled A-H.
 
-|`if` statement|Corresponding test|
-|--------------|------------------|
-|`if type(model) not in [type(Lasso()), type(Ridge()), type(LogisticRegression())]:`| `test_input_model_type()` |
-|`if not isinstance(alpha, list):`|`test_nonzero_coefs_logistic():`|
-|`if isinstance(model, type(LogisticRegression())):`|`test_nonzero_coefs_logistic():`|
-|`else:`|`test_nonzero_coefs_ridge()`|
-|`else:`|`test_nonzero_count_logistic():`|
-|`if isinstance(model, type(LogisticRegression())):`|`test_nonzero_count_logistic():`|
-|`else:`|`test_nonzero_count_ridge():`|
+|Statement| Corresponding Test|
+|---------|-------------------|
+|A|`test_input_model_type`|
+|B|`test_nonzero_count_ridge`|
+|C|`test_nonzero_coefs_logistic`|
+|D|`test_nonzero_count_logistic`|
+|E|`test_nonzero_coefs_logistic`|
+|F|`test_nonzero_coefs_rigde`|
+|G|`test_nonzero_count_logistic`|
+|H|`test_nonzero_count_lasso`|
