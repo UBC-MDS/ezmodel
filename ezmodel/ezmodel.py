@@ -30,7 +30,7 @@ def test_train_plot(model, score_type, x, y, hyperparameter, param_range):
     pass
 
 
-def regularization_plot(model, alpha, tol=1e-7, x, y):
+def regularization_plot(model, alpha, x, y, tol=1e-7):
     """
      Plots coeffiecients from results of Lasso, Ridge, or Logistic Regression model
 
@@ -41,21 +41,55 @@ def regularization_plot(model, alpha, tol=1e-7, x, y):
                                 LogisticRegression(), Ridge(), Lasso().
                                 Can also be a pipeline with several steps containing one of the above models.
 
-        alpha (float or list): Penalty constant multiplying the regularization term. Larger value corresponds to stronger
-                               regularization. Can be list or float.
-
-        tol (float): Coefficients less than this will be treated as zero if a list is is given for alpha argument.
+        alpha: Penalty constant multiplying the regularization term. Larger value corresponds to stronger
+                regularization. Can be list or float/int.
 
         x (ndarray): (n x d) array of features.
-        y (ndarray): (n x 1) Array of labels
+
+        y (ndarray): (n x 1) Array of labels.
+
+        tol (float): coefficients less than this will be treated as zero.
 
     Returns:
-        List of counts of non-zero coefficients if alpha is a list, or list of coefficients if alpha is a float.
-        Calls plt.show() to display plot.
-        Plot shown depends on type of alpha argument. If list, then returns plot of non-zero features,
-        and if float, then displays plot of coefficients' magnitudes.
+        Calls plt.show() to display plot. Plot shown depends on type of alpha argument: If list, displays and returns number
+        of non-zero features for each alpha value; if float/int: returns and displays coefficient magnitudes.
+
     """
-    pass
+
+    if type(model) not in [type(Lasso()), type(Ridge()), type(LogisticRegression())]:
+        raise TypeError("Model specified must have same type as Lasso(), Ridge(), or LogisticRegression()")
+
+    if not isinstance(alpha, list):
+        if isinstance(model, type(LogisticRegression())):
+            fitted_model = model.set_params(**{'C':1/alpha})
+            fitted_model.fit(x,y)
+            coefs = fitted_model.coef_[0]
+        else:
+            fitted_model = model.set_params(**{'alpha':alpha})
+            fitted_model.fit(x,y)
+            coefs = fitted_model.coef_
+        coefs = [np.abs(c) if c>tol else 0 for c in coefs]
+
+        plt.plot(range(len(coefs)), coefs, linestyle='-', marker='o')
+        plt.title("Magnitude of Nonzero Coefficients")
+        plt.show()
+
+    else:
+        if isinstance(model, type(LogisticRegression())):
+            fitted_models = [clone(model).set_params(**{'C':1/a}) for a in alpha]
+            fitted_models = [m.fit(x,y) for m in fitted_models]
+            coefs = [sum(np.abs(m.coef_[0]) > tol) for m in fitted_models]
+
+        else:
+            fitted_models = [clone(model).set_params(**{'alpha':a}) for a in alpha]
+            fitted_models = [m.fit(x,y) for m in fitted_models]
+            coefs = [sum(np.abs(m.coef_) > tol) for m in fitted_models]
+
+        plt.plot(alpha, coefs, linestyle='-', marker='o')
+        plt.title("Number of Nonzero Coefficients")
+        plt.show()
+
+    return coefs
 
 
 class Score(object):
