@@ -30,6 +30,7 @@ def test_nonzero_count_lasso():
     nz_count = [sum(np.abs(m.coef_)>tol) for m in lasso_models]
 
     assert nz_count == regularization_plot(Lasso(), alpha=alpha_range, tol=tol, x=X, y=y)
+<<<<<<< HEAD:tests/test_regularizationplot.py
 
 def test_nonzero_count_logistic():
     """Checks using list for alpha with LogisticRegression() outputs correct coefficient counts."""
@@ -38,6 +39,8 @@ def test_nonzero_count_logistic():
     C_range = [2**i for i in range(-2, 3)]
     log_models = [LogisticRegression(C=k).fit(X,y) for k in C_range]
     nz_count = [sum(np.abs(m.coef_[0])>tol) for m in log_models]
+=======
+>>>>>>> 32d7236d508c44df0b663832eb3e91a310f44313:tests/test_regularization_plot.py
 
     assert nz_count == regularization_plot(Ridge(), alpha=C_range, tol=tol, x=X, y=y)
 
@@ -59,4 +62,8 @@ def test_nonzero_coefs_rigde():
     mod_coefs = mod.coef_
     mod_coefs = [np.abs(c) if c>tol else 0 for c in mod_coefs]
 
+<<<<<<< HEAD:tests/test_regularizationplot.py
     assert mod_coefs == regularization_plot(Ridge(), alpha=2**2.0, x=X, y=y)
+=======
+    assert mod_coefs == regularization_plot(LogisticRegression(), alpha=10**7, x=X, y=y)
+>>>>>>> 32d7236d508c44df0b663832eb3e91a310f44313:tests/test_regularization_plot.py
