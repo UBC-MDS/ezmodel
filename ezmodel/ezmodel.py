@@ -1,3 +1,8 @@
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+
+
 def test_train_plot(model, score_type, x, y, hyperparameter, param_range):
     """
     Creates plot of training and test error for an arbitrary sklearn model.
@@ -62,7 +67,7 @@ class Score(object):
 
 
         Args:
-            model (sklearn object): Previously initialized, untrained sklearn classifier or regression object 
+            model (sklearn object): Previously initialized, untrained sklearn classifier or regression object
                                     with fit & predict methods. Can also be a pipeline with several steps.
 
             score_type (list or str): Default='mse'. Should be one of: [mse, r2, adj_r2, auc, ...].
@@ -125,9 +130,25 @@ class Score(object):
             self.random_seed = random_seed
             self.scores = None
 
-    # def __str__(self):
-    #     """ Overwrite __str__ method to print information about the scores contained in the object when called."""
-    #     pass
+    def __str__(self):
+        """ Overwrite __str__ method to print information about the scores contained in the object when called."""
+        if self.x is not None:
+            if isinstance(self.score_type, list):
+                return "Score object for: \nModel Type: {} \nScores: {}".format(type(self.model),
+                                                                          [i for i in zip(self.score_type,
+                                                                                          self.scores)])
+            else:
+                return "Score object for: \nModel Type: {} \nScore: {}={}".format(type(self.model),
+                                                                            self.score_type,
+                                                                            self.scores)
+
+        else:
+            if isinstance(self.score_type, list):
+                return "Score object for: \nModel Type: {} \nScore Types: {}".format(type(self.model),
+                                                                                     self.score_type)
+            else:
+                return "Score object for: \nModel Type: {} \nScore Type: {}".format(type(self.model),
+                                                                                    self.score_type)
 
     def _splitfitnpredict(self):
         """
@@ -168,20 +189,28 @@ class Score(object):
 
     def _r2(self):
         """ Computes R-Squared. Uses self.model, self.x and self.y """
-        pass
+        t_labels, p_labels = self._splitfitnpredict()
+
+        scores = [(1 - ((np.sum((t_labels[0] - p_labels)**2))/(np.sum((t_labels[0] - np.mean(t_labels[0]))**2)))),
+                  (1 - ((np.sum((t_labels[1] - p_labels)**2))/(np.sum((t_labels[1] - np.mean(t_labels[1]))**2))))]
+
+        return scores
 
     def _adj_r2(self):
         """ Computes Adjusted R-Squared. Uses self.model, self.x and self.y """
-        pass
+        r2s = self._r2
+
+        scores = [(1 - r2s[0]*((self.x.shape[0] - 1)/(self.x.shape[0] - self.x.shape[1] - 1))),
+                  (1 - r2s[1]*((self.x.shape[0] - 1)/(self.x.shape[0] - self.x.shape[1] - 1)))]
+
+        return scores
 
     def _auc(self):
         """ Computes Area Under the Receiver Operator Curve. Uses self.model, self.x and self.y"""
-        # Turns out it is **NOT** trivial to do this in general.
-        # Still looking for a good way to generalize this function.
 
         sens = self._sensitivity()
         spec = self._specificity()
-        pass
+        raise NotImplementedError("A general function for AUC is harder than expected! Coming Soon.")
 
 
     def _sensitivity(self):
