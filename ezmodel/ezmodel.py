@@ -1,9 +1,3 @@
-import numpy as np
-import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier as RFC
-from sklearn.datasets import load_breast_cancer
-
 def test_train_plot(model, score_type, x, y, hyperparameter, param_range):
     """
     Creates plot of training and test error for an arbitrary sklearn model.
@@ -91,6 +85,7 @@ def regularization_plot(model, alpha, x, y, tol=1e-7):
         plt.show()
 
     return coefs
+
 
 
 class Score(object):
@@ -243,9 +238,8 @@ class Score(object):
 
         sens = self._sensitivity()
         spec = self._specificity()
-        raise NotImplementedError("A general function for AUC is harder than expected! Coming Soon.")
-
-
+        # raise NotImplementedError("A general function for AUC is harder than expected! Coming Soon.")
+        pass
     def _sensitivity(self):
         """
         Computes model sensitivity. Used for AUC. Uses self.model, self.x and self.y
@@ -278,19 +272,19 @@ class Score(object):
 
     def _truepos(self, y_true, y_pred):
         """ Computes the number of true positives in a set of predictions """
-        return sum([1 for i in range(len(y_true)) if y_true[i] == 1 and y_pred[i] == 1])
+        return sum([1 for i in range(len(y_true)) if y_true[i].all() == 1 and y_pred[i].all() == 1])
 
     def _falsepos(self, y_true, y_pred):
         """ Computes the number of false positives in a set of predictions """
-        return sum([1 for i in range(len(y_true)) if y_true[i] == 0 and y_pred[i] == 1])
+        return sum([1 for i in range(len(y_true)) if y_true[i].all() == 0 and y_pred[i].all() == 1])
 
     def _falseneg(self, y_true, y_pred):
         """ Computes the number of true negatives in a set of predictions """
-        return sum([1 for i in range(len(y_true)) if y_true[i] == 1 and y_pred[i] == 0])
+        return sum([1 for i in range(len(y_true)) if y_true[i].all() == 1 and y_pred[i].all() == 0])
 
     def _trueneg(self, y_true, y_pred):
         """ Computes the number of false negatives in a set of predictions """
-        return sum([1 for i in range(len(y_true)) if y_true[i] == 0 and y_pred[i] == 0])
+        return sum([1 for i in range(len(y_true)) if y_true[i].all() == 0 and y_pred[i].all() == 0])
 
     def calculate(self, x, y, score_type=None):
         """
@@ -309,9 +303,8 @@ class Score(object):
                                    training and validation error.
         """
         # Type Checking:
-        x = _coerce(x)
-        y = _coerce(y)
-
+        self.x = _coerce(x)
+        self.y = _coerce(y)
 
         if score_type is None:
             score_type = self.score_type
