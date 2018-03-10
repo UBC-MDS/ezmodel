@@ -40,7 +40,7 @@ def test_nonzero_count_logistic():
     log_models = [LogisticRegression(C=k).fit(X,y) for k in C_range]
     nz_count = [sum(np.abs(m.coef_[0])>tol) for m in log_models]
 
-    assert nz_count == regularization_plot(Ridge(), alpha=C_range, tol=tol, x=X, y=y)
+    assert nz_count == regularization_plot(LogisticRegression(), alpha=C_range, tol=tol, x=X, y=y)
 
 def test_nonzero_coefs_logistic():
     """Checks using int for alpha produces correct coefficients for LogisticRegression() model."""
