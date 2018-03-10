@@ -1,7 +1,8 @@
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
-
+from sklearn.ensemble import RandomForestClassifier as RFC
+from sklearn.datasets import load_breast_cancer
 
 def test_train_plot(model, score_type, x, y, hyperparameter, param_range):
     """
@@ -95,7 +96,7 @@ def regularization_plot(model, alpha, x, y, tol=1e-7):
 class Score(object):
     """ Scoring object. Allows computation of an arbitrary score metric on an arbitrary sklearn model. """
 
-    def __init__(self, model, score_type='mse', x=None, y=None, random_seed=None):
+    def __init__(self, model, score_type='mse', x=None, y=None, random_seed=np.random.randint(1, 99999999)):
         """
         Constructor for score object. Adds in the model as well as the score type you are looking for.
         # Could score_type be a list?
@@ -117,10 +118,10 @@ class Score(object):
             None. Sets attributes of the score function, and if the optional values are provided, computes the score.
         """
 
-        self.scores_dict = {'accuracy': self._accuracy(), 'mse': self._mse(),
-                            'auc': self._auc(), "sensitivity": self._sensitivity(),
-                            "specificity": self._specificity(), "r2": self._r2(),
-                            'adj_r2': self._adj_r2()}
+        self.scores_dict = {'accuracy': self._accuracy, 'mse': self._mse,
+                            'auc': self._auc, "sensitivity": self._sensitivity,
+                            "specificity": self._specificity, "r2": self._r2,
+                            'adj_r2': self._adj_r2}
 
         # Type Checking for required arguments:
 
@@ -141,9 +142,8 @@ class Score(object):
             raise TypeError("score_type should be a string or a list")
 
         # Check for random_seed
-        if random_seed is not None:
-            if not isinstance(random_seed, int):
-                raise TypeError("random_seed must be an integer.")
+        if not isinstance(random_seed, int):
+            raise TypeError("random_seed must be an integer.")
 
         # Check for x and y inputs
         if x is not None:
@@ -155,7 +155,6 @@ class Score(object):
                 self.y = y
                 self.score_type = score_type
                 self.random_seed = random_seed
-
                 self.scores = self.calculate(self.x, self.y, self.score_type)
 
         elif y is not None:  # This will always raise, since we will only get here if x is None
@@ -194,10 +193,7 @@ class Score(object):
         Returns:
             Two lists. The first contains the true split labels, the second contains the predicted labels.
         """
-        if self.random_seed is not None:
-            xt, xv, yt, yv = train_test_split(self.x, self.y, random_state=self.random_seed)
-        else:
-            xt, xv, yt, yv = train_test_split(self.x, self.y)
+        xt, xv, yt, yv = train_test_split(self.x, self.y, random_state=self.random_seed)
 
         self.model.fit(xt, yt)
         t_pred = self.model.predict(xt)
@@ -316,16 +312,15 @@ class Score(object):
         x = _coerce(x)
         y = _coerce(y)
 
-        xt, xv, yt, yv = train_test_split()
 
         if score_type is None:
             score_type = self.score_type
 
         if isinstance(score_type, str):
             try:
-                scores = self.scores_dict[score_type]
+                scores = self.scores_dict[score_type]()
                 self.scores = scores
-                return scores
+                return self.scores
 
             except KeyError:
                 print("{} is not a supported score function. Please try one of: {}".format(score_type, ", ".join(self.scores_dict.keys())))
@@ -334,7 +329,7 @@ class Score(object):
             scores = dict()
             for i in score_type:
                 try:
-                    c_score = self.scores_dict[i]
+                    c_score = self.scores_dict[i]()
                     scores[i] = c_score
                 except KeyError:
                     print("{} is not a supported score function. Please try one of: {}".format(i, ", ".join(self.scores_dict.keys())))
