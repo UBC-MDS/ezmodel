@@ -219,8 +219,8 @@ class Score(object):
         """ Computes R-Squared. Uses self.model, self.x and self.y """
         t_labels, p_labels = self._splitfitnpredict()
 
-        scores = [(1 - ((np.sum((t_labels[0] - p_labels)**2))/(np.sum((t_labels[0] - np.mean(t_labels[0]))**2)))),
-                  (1 - ((np.sum((t_labels[1] - p_labels)**2))/(np.sum((t_labels[1] - np.mean(t_labels[1]))**2))))]
+        scores = [(1 - ((np.sum((t_labels[0] - p_labels[0])**2))/(np.sum((t_labels[0] - np.mean(t_labels[0]))**2)))),
+                  (1 - ((np.sum((t_labels[1] - p_labels[1])**2))/(np.sum((t_labels[1] - np.mean(t_labels[1]))**2))))]
 
         return scores
 
@@ -228,8 +228,8 @@ class Score(object):
         """ Computes Adjusted R-Squared. Uses self.model, self.x and self.y """
         r2s = self._r2
 
-        scores = [(1 - r2s[0]*((self.x.shape[0] - 1)/(self.x.shape[0] - self.x.shape[1] - 1))),
-                  (1 - r2s[1]*((self.x.shape[0] - 1)/(self.x.shape[0] - self.x.shape[1] - 1)))]
+        scores = [(1 - (1 - (r2s[0]*((self.x.shape[0] - 1)/(self.x.shape[0] - self.x.shape[1] - 1))))),
+                  (1 - (1 - r2s[1]*((self.x.shape[0] - 1)/(self.x.shape[0] - self.x.shape[1] - 1))))]
 
         return scores
 
