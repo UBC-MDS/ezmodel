@@ -41,29 +41,35 @@ class Score(object):
 
         # Checks for model
         if "sklearn" not in str(type(model)):
+            # A
             raise TypeError("Model must be an sklearn classifier or regression object.")
 
         # Checks for score_type
         if isinstance(score_type, str):
             if score_type not in self.scores_dict.keys():
+                # B
                 raise TypeError("{} is not a supported score function. Please try one of: {}".format(score_type, ", ".join(self.scores_dict.keys())))
 
         elif isinstance(score_type, list):
             for i in score_type:
                 if not isinstance(i, str) or i not in self.scores_dict.keys():
+                    # C
                     raise TypeError("{} is not a valid input to scores_type. Please try one of: {}".format(i, ", ".join(self.scores_dict.keys())))
         else:
+            # D
             raise TypeError("score_type should be a string or a list")
 
         # Check for random_seed
         if not isinstance(random_seed, int):
+            # E
             raise TypeError("random_seed must be an integer.")
 
         # Check for x and y inputs
         if x is not None:
             if y is None:
+                # F
                 raise TypeError("y must also be supplied if x is supplied.")
-            else:  # Set attributes and compute score for the given data.
+            else:  # Set attributes and compute score for the given data. -- G
                 self.model = model
                 self.x = x
                 self.y = y
@@ -72,31 +78,38 @@ class Score(object):
                 self.scores = self.calculate(self.x, self.y, self.score_type)
 
         elif y is not None:  # This will always raise, since we will only get here if x is None
+            # H
             raise TypeError("x must also be supplied if y is supplied.")
 
-        else: # If no x and y are passed, set attributes and finish __init__()
+        else: # If no x and y are passed, set attributes and finish __init__() -- I
             self.model = model
             self.score_type = score_type
             self.random_seed = random_seed
             self.scores = None
+            self.x = None
+            self.y = None
 
     def __str__(self):
         """ Overwrite __str__ method to print information about the scores contained in the object when called."""
         if self.x is not None:
             if isinstance(self.score_type, list):
+                # J
                 return "Score object for: \nModel Type: {} \nScores: {}".format(type(self.model),
                                                                           [i for i in zip(self.score_type,
-                                                                                          self.scores)])
+                                                                                          self.scores.values())])
             else:
+                # K
                 return "Score object for: \nModel Type: {} \nScore: {}={}".format(type(self.model),
                                                                             self.score_type,
                                                                             self.scores)
 
         else:
+            # L
             if isinstance(self.score_type, list):
                 return "Score object for: \nModel Type: {} \nScore Types: {}".format(type(self.model),
                                                                                      self.score_type)
             else:
+                # M
                 return "Score object for: \nModel Type: {} \nScore Type: {}".format(type(self.model),
                                                                                     self.score_type)
 
@@ -138,8 +151,8 @@ class Score(object):
         """ Computes R-Squared. Uses self.model, self.x and self.y """
         t_labels, p_labels = self._splitfitnpredict()
 
-        scores = [(1 - ((np.sum((t_labels[0] - p_labels)**2))/(np.sum((t_labels[0] - np.mean(t_labels[0]))**2)))),
-                  (1 - ((np.sum((t_labels[1] - p_labels)**2))/(np.sum((t_labels[1] - np.mean(t_labels[1]))**2))))]
+        scores = [(1 - ((np.sum((t_labels[0] - p_labels[0])**2))/(np.sum((t_labels[0] - np.mean(t_labels[0]))**2)))),
+                  (1 - ((np.sum((t_labels[1] - p_labels[1])**2))/(np.sum((t_labels[1] - np.mean(t_labels[1]))**2))))]
 
         return scores
 
@@ -147,8 +160,8 @@ class Score(object):
         """ Computes Adjusted R-Squared. Uses self.model, self.x and self.y """
         r2s = self._r2
 
-        scores = [(1 - r2s[0]*((self.x.shape[0] - 1)/(self.x.shape[0] - self.x.shape[1] - 1))),
-                  (1 - r2s[1]*((self.x.shape[0] - 1)/(self.x.shape[0] - self.x.shape[1] - 1)))]
+        scores = [(1 - (1 - (r2s[0]*((self.x.shape[0] - 1)/(self.x.shape[0] - self.x.shape[1] - 1))))),
+                  (1 - (1 - r2s[1]*((self.x.shape[0] - 1)/(self.x.shape[0] - self.x.shape[1] - 1))))]
 
         return scores
 
@@ -225,10 +238,10 @@ class Score(object):
         self.x = _coerce(x)
         self.y = _coerce(y)
 
-        if score_type is None:
+        if score_type is None: # N
             score_type = self.score_type
 
-        if isinstance(score_type, str):
+        if isinstance(score_type, str): # O
             try:
                 scores = self.scores_dict[score_type]()
                 self.scores = scores
@@ -237,7 +250,7 @@ class Score(object):
             except KeyError:
                 print("{} is not a supported score function. Please try one of: {}".format(score_type, ", ".join(self.scores_dict.keys())))
 
-        elif isinstance(score_type, list):
+        elif isinstance(score_type, list):  # P
             scores = dict()
             for i in score_type:
                 try:
@@ -249,8 +262,8 @@ class Score(object):
             self.scores = scores
             return scores
 
-        else:
-            return TypeError("score_type must be a list or string")
+        else: # Q
+            raise TypeError("score_type must be a list or string")
 
 
 def _coerce(x):
@@ -277,60 +290,30 @@ def _coerce(x):
 
 
 class TestClass:
-    def test_setters_no_data(self):
-        """ Ensures that all setters are working correctly if no data is passed. """
-        score_instance = Score(RFC(), 'auc')
-        assert isinstance(score_instance.model, RFC)
-        assert isinstance(score_instance.score_type, str)
-        try:
-            assert score_instance.x is None
-        except AttributeError:
-            pass
-        try:
-            assert score_instance.y is None
-        except AttributeError:
-            pass
-        try:
-            assert score_instance.scores is None
-        except AttributeError:
-            pass
-
-    def test_input_exceptions_no_data(self):
-        """ Ensures that improper inputs are throwing exceptions if no data is passed. """
-        with pytest.raises(TypeError):
-            Score('hello', 'mse')
-        with pytest.raises(TypeError):
-            Score(RFC(), 5)
 
     def test_setters(self):
-        """ Ensures that all setters are working correctly if data is passed. """
-        score_instance = Score(RFC(), 'sensitivity', np.array([[5, 5], [10, 20]]), np.array([[1, 2], [1, 2]]))
-        assert isinstance(score_instance.model, RFC)
-        assert isinstance(score_instance.score_type, str)
-        assert isinstance(score_instance.x, np.ndarray)
-        assert isinstance(score_instance.y, np.ndarray)
-        assert isinstance(score_instance.scores, (list, dict))
-
-    def test_input_exceptions(self):
-        """ Ensures that improper inputs are throwing exceptions if data is passed. """
+        """Performs tests on splits A-I"""
         x, y = load_breast_cancer(True)
 
         with pytest.raises(TypeError):
-            Score('hello', 'mse', x, y)
+            score_instanceA = Score('hello', 'mse', x, y)
         with pytest.raises(TypeError):
-            Score(RFC(), 5, x, y)
+            score_instanceB = Score(RFC(), 'banana', x, y)
         with pytest.raises(TypeError):
-            Score(RFC(), 'mse', x, 'y')
+            score_instanceC = Score(RFC(), ['mse', 'cheese'], x, y)
         with pytest.raises(TypeError):
-            Score(RFC(), 'mse', 'x', y)
+            score_instanceD = Score(RFC(), 5, x, y)
+        with pytest.raises(TypeError):
+            score_instanceE = Score(RFC(), 'mse', x, y, random_seed="banana")
+        with pytest.raises(TypeError):
+            score_instanceF = Score(RFC(), 'mse', x)
+        score_instanceG = Score(RFC(), 'mse', x, y)
+        assert score_instanceG.x == x
+        with pytest.raises(TypeError):
+            score_instanceH = Score(RFC(), 'mse', y)
+        score_instanceI = Score(RFC(), 'mse')
+        assert isinstance(score_instanceI, RFC())
 
-        # y_prime = np.array([1, 2, 3, 4, 5, 6])
-        # with pytest.raises(IndexError):
-        #     Score(RFC(), 'mse', x, y_prime)
-        #
-        # x_prime = np.array([[1, 2], [3, 4], [5, 6]])
-        # with pytest.raises(IndexError):
-        #     Score(RFC(), 'mse', x_prime, y)
 
     def test_outputs_str(self):
         clf = RFC()
@@ -374,6 +357,31 @@ class TestClass:
         for key in explicit_results.keys():
             assert np.isclose(all(score_instance.scores[key]), all(explicit_results[key])) # Check actual results
 
+    def test_str_method(self):
+        """Covers branches J, K, L, and M"""
+        x, y = load_breast_cancer(True)
+
+        score_instanceJ = Score(RFC(), 'mse', x=x, y=y, random_seed=1234)
+        score_instanceK = Score(RFC(), ['mse', 'accuracy'], x=x, y=y, random_seed=1234)
+        score_instanceL = Score(RFC(), 'mse', random_seed=1234)
+        score_instanceM = Score(RFC(), ['mse', 'accuracy'], random_seed=1234)
+
+        assert score_instanceJ.__str__() == "Score object for: \nModel Type: <class 'sklearn.ensemble.forest.RandomForestClassifier'> \nScore: mse=[0.0, 0.06993006993006994]"
+        assert score_instanceK.__str__() == "Score object for: \nModel Type: <class 'sklearn.ensemble.forest.RandomForestClassifier'> \nScores: [('mse', [0.0, 0.07692307692307693]), ('accuracy', [0.9976525821596244, 0.9300699300699301])]"
+        assert score_instanceL.__str__() == "Score object for: \nModel Type: <class 'sklearn.ensemble.forest.RandomForestClassifier'> \nScore Type: mse"
+        assert score_instanceM.__str__() == "Score object for: \nModel Type: <class 'sklearn.ensemble.forest.RandomForestClassifier'> \nScore Types: ['mse', 'accuracy']"
 
 
+    def test_calculate(self):
+        """ Covers branches N - S"""
+        x, y = load_breast_cancer(True)
 
+        score_instanceN = Score(RFC(), ['mse', 'accuracy'])
+        assert list(score_instanceN.calculate(x, y).keys()) == ['mse', 'accuracy']
+        score_instanceO = Score(RFC(), 'mse')
+        assert isinstance(score_instanceO.calculate(x, y, score_type='mse'), list)
+        score_instanceP = Score(RFC(), ['mse', 'accuracy'])
+        assert isinstance(score_instanceP.calculate(x, y, score_type=['mse', 'accuracy']), dict)
+        with pytest.raises(TypeError):
+            score_instanceQ = Score(RFC(), 'mse')
+            score_instanceQ.calculate(x, y, score_type=True)
