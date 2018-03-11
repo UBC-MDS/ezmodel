@@ -11,43 +11,10 @@ from sklearn import linear_model
 from numpy import random
 
 
-
+import pytest
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-%matplotlib inline
-
-
-def train_test_plot():
-    """
-    Creates plot of training and test error for an arbitrary sklearn model.
-
-    Args:
-        model (sklearn object): Previously initialized, untrained sklearn classifier or regression object
-                                    with fit & predict methods. Can also be a pipeline with several steps.
-
-        score_type (list or str): Should be one of: [mse, r2, adj_r2, auc, ...].
-                                      If a list, then a list containing several of those entries as elements.
-
-        x (ndarray): (n x d) array of features.
-        y (ndarray): (n x 1) Array of labels
-
-        hyperparameter (string): Hyperparameter of model to iterate over creating plot
-
-        param_range (list): Range of hyperparameter values to iterate over
-
-        random_seed (int): Default = None. If set to integer, defines the random train_test_split
-
-        verbose (boolean): Default = `False`. If set to `True` returns list of training and test score.
-                           Added for plot testing.
-
-
-    Returns:
-        none. Calls plt.show() to display plot
-
-
-    """
-    pass
 
 
 class TestClass:
@@ -150,7 +117,7 @@ class TestClass:
     def test_no_input(self):
         """ Ensures that TypeError is raised if either of the inputs is missing/wrong. """
 
-        import pytest
+
 
         # Test A
         with pytest.raises(TypeError):
@@ -195,6 +162,9 @@ class TestClass:
 
 
     def test_input_shape(self):
+
+
+
         with pytest.raises(RuntimeError):
             train_test_plot(model=DecisionTreeClassifier(), score_type="accuracy", x=X, y=np.array([1, 1, 1, 1]),
                             hyperparameter="max_depth",
@@ -203,6 +173,7 @@ class TestClass:
 
     def test_wrong_parameter(self):
         """ Ensures that ValueError if hyperparamter does not match model"""
+
 
         with pytest.raises(ValueError):
             train_test_plot(model=DecisionTreeClassifier(), score_type="accuracy", x=X, y=y, hyperparameter="alpha",
