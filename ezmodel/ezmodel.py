@@ -1,10 +1,3 @@
-import numpy as np
-import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier as RFC
-from sklearn.datasets import load_breast_cancer
-
-
 def train_test_plot(model, score_type,
                     x, y, hyperparameter, param_range, random_seed, verbose=False):
     """
@@ -270,29 +263,35 @@ class Score(object):
 
         # Checks for model
         if "sklearn" not in str(type(model)):
+            # A
             raise TypeError("Model must be an sklearn classifier or regression object.")
 
         # Checks for score_type
         if isinstance(score_type, str):
             if score_type not in self.scores_dict.keys():
+                # B
                 raise TypeError("{} is not a supported score function. Please try one of: {}".format(score_type, ", ".join(self.scores_dict.keys())))
 
         elif isinstance(score_type, list):
             for i in score_type:
                 if not isinstance(i, str) or i not in self.scores_dict.keys():
+                    # C
                     raise TypeError("{} is not a valid input to scores_type. Please try one of: {}".format(i, ", ".join(self.scores_dict.keys())))
         else:
+            # D
             raise TypeError("score_type should be a string or a list")
 
         # Check for random_seed
         if not isinstance(random_seed, int):
+            # E
             raise TypeError("random_seed must be an integer.")
 
         # Check for x and y inputs
         if x is not None:
             if y is None:
+                # F
                 raise TypeError("y must also be supplied if x is supplied.")
-            else:  # Set attributes and compute score for the given data.
+            else:  # Set attributes and compute score for the given data. -- G
                 self.model = model
                 self.x = x
                 self.y = y
@@ -301,31 +300,38 @@ class Score(object):
                 self.scores = self.calculate(self.x, self.y, self.score_type)
 
         elif y is not None:  # This will always raise, since we will only get here if x is None
+            # H
             raise TypeError("x must also be supplied if y is supplied.")
 
-        else: # If no x and y are passed, set attributes and finish __init__()
+        else: # If no x and y are passed, set attributes and finish __init__() -- I
             self.model = model
             self.score_type = score_type
             self.random_seed = random_seed
             self.scores = None
+            self.x = None
+            self.y = None
 
     def __str__(self):
         """ Overwrite __str__ method to print information about the scores contained in the object when called."""
         if self.x is not None:
             if isinstance(self.score_type, list):
+                # J
                 return "Score object for: \nModel Type: {} \nScores: {}".format(type(self.model),
                                                                           [i for i in zip(self.score_type,
-                                                                                          self.scores)])
+                                                                                          self.scores.values())])
             else:
+                # K
                 return "Score object for: \nModel Type: {} \nScore: {}={}".format(type(self.model),
                                                                             self.score_type,
                                                                             self.scores)
 
         else:
+            # L
             if isinstance(self.score_type, list):
                 return "Score object for: \nModel Type: {} \nScore Types: {}".format(type(self.model),
                                                                                      self.score_type)
             else:
+                # M
                 return "Score object for: \nModel Type: {} \nScore Type: {}".format(type(self.model),
                                                                                     self.score_type)
 
@@ -367,8 +373,8 @@ class Score(object):
         """ Computes R-Squared. Uses self.model, self.x and self.y """
         t_labels, p_labels = self._splitfitnpredict()
 
-        scores = [(1 - ((np.sum((t_labels[0] - p_labels)**2))/(np.sum((t_labels[0] - np.mean(t_labels[0]))**2)))),
-                  (1 - ((np.sum((t_labels[1] - p_labels)**2))/(np.sum((t_labels[1] - np.mean(t_labels[1]))**2))))]
+        scores = [(1 - ((np.sum((t_labels[0] - p_labels[0])**2))/(np.sum((t_labels[0] - np.mean(t_labels[0]))**2)))),
+                  (1 - ((np.sum((t_labels[1] - p_labels[1])**2))/(np.sum((t_labels[1] - np.mean(t_labels[1]))**2))))]
 
         return scores
 
@@ -376,8 +382,8 @@ class Score(object):
         """ Computes Adjusted R-Squared. Uses self.model, self.x and self.y """
         r2s = self._r2
 
-        scores = [(1 - r2s[0]*((self.x.shape[0] - 1)/(self.x.shape[0] - self.x.shape[1] - 1))),
-                  (1 - r2s[1]*((self.x.shape[0] - 1)/(self.x.shape[0] - self.x.shape[1] - 1)))]
+        scores = [(1 - (1 - (r2s[0]*((self.x.shape[0] - 1)/(self.x.shape[0] - self.x.shape[1] - 1))))),
+                  (1 - (1 - r2s[1]*((self.x.shape[0] - 1)/(self.x.shape[0] - self.x.shape[1] - 1))))]
 
         return scores
 
@@ -386,9 +392,8 @@ class Score(object):
 
         sens = self._sensitivity()
         spec = self._specificity()
-        raise NotImplementedError("A general function for AUC is harder than expected! Coming Soon.")
-
-
+        # raise NotImplementedError("A general function for AUC is harder than expected! Coming Soon.")
+        pass
     def _sensitivity(self):
         """
         Computes model sensitivity. Used for AUC. Uses self.model, self.x and self.y
@@ -421,19 +426,19 @@ class Score(object):
 
     def _truepos(self, y_true, y_pred):
         """ Computes the number of true positives in a set of predictions """
-        return sum([1 for i in range(len(y_true)) if y_true[i] == 1 and y_pred[i] == 1])
+        return sum([1 for i in range(len(y_true)) if y_true[i].all() == 1 and y_pred[i].all() == 1])
 
     def _falsepos(self, y_true, y_pred):
         """ Computes the number of false positives in a set of predictions """
-        return sum([1 for i in range(len(y_true)) if y_true[i] == 0 and y_pred[i] == 1])
+        return sum([1 for i in range(len(y_true)) if y_true[i].all() == 0 and y_pred[i].all() == 1])
 
     def _falseneg(self, y_true, y_pred):
         """ Computes the number of true negatives in a set of predictions """
-        return sum([1 for i in range(len(y_true)) if y_true[i] == 1 and y_pred[i] == 0])
+        return sum([1 for i in range(len(y_true)) if y_true[i].all() == 1 and y_pred[i].all() == 0])
 
     def _trueneg(self, y_true, y_pred):
         """ Computes the number of false negatives in a set of predictions """
-        return sum([1 for i in range(len(y_true)) if y_true[i] == 0 and y_pred[i] == 0])
+        return sum([1 for i in range(len(y_true)) if y_true[i].all() == 0 and y_pred[i].all() == 0])
 
     def calculate(self, x, y, score_type=None):
         """
@@ -452,14 +457,13 @@ class Score(object):
                                    training and validation error.
         """
         # Type Checking:
-        x = _coerce(x)
-        y = _coerce(y)
+        self.x = _coerce(x)
+        self.y = _coerce(y)
 
-
-        if score_type is None:
+        if score_type is None: # N
             score_type = self.score_type
 
-        if isinstance(score_type, str):
+        if isinstance(score_type, str): # O
             try:
                 scores = self.scores_dict[score_type]()
                 self.scores = scores
@@ -468,7 +472,7 @@ class Score(object):
             except KeyError:
                 print("{} is not a supported score function. Please try one of: {}".format(score_type, ", ".join(self.scores_dict.keys())))
 
-        elif isinstance(score_type, list):
+        elif isinstance(score_type, list):  # P
             scores = dict()
             for i in score_type:
                 try:
@@ -480,8 +484,8 @@ class Score(object):
             self.scores = scores
             return scores
 
-        else:
-            return TypeError("score_type must be a list or string")
+        else: # Q
+            raise TypeError("score_type must be a list or string")
 
 
 def _coerce(x):
