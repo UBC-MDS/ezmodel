@@ -28,6 +28,32 @@ user to choose different scoring functions based on the problem at hand.
 
 3. `regularization_plot()`  Visualize the results of L1 or L2 regularization on your linear models to help determine the optimal strength of your regularization parameter.
 
+# Usage
+
+Usage of the functions is straightforward, and examples are below.
+
+```{python}
+import ezmodel
+
+# compare training and test error for sklearn model vs. a hyperparameter
+# verbose = True so errors are returned
+train_test_plot(Lasso(), 'mse', x, y, 'alpha', [2,4,8], random_seed=123)
+
+# plot coefficient magnitude with regularization strength 2
+# coefficients less than tol will be treated as 0
+regularization_plot(Ridge(), alpha=2, x, y, tol=1e-6)
+
+# calculate adjusted r2 score for model
+Score(LinearRegression(), 'adj_r2', x, y)
+```
+
+# Installation
+
+Installation is straightforward with `pip`:
+
+```
+pip install git+git://github.com/UBC-MDS/ezmodel
+```
 
 # Description of Landscape
 
