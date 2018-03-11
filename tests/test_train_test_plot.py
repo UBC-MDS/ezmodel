@@ -1,11 +1,20 @@
-from sklearn.model_selection import train_test_split
-from sklearn import datasets
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier as RFC
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.datasets import load_digits
+from sklearn.linear_model import  LogisticRegression
+from sklearn.linear_model import Lasso
 from sklearn.linear_model import Ridge
-import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd
+from sklearn import linear_model
+from numpy import random
 
+
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
 %matplotlib inline
 
 
@@ -42,24 +51,21 @@ def train_test_plot():
 
 
 class TestClass:
+
     def test_train_test_plot_tree(self):
-        random_seed = 1234
-        digits = datasets.load_digits()
-
-        X = digits['data']  # these are the features (pixel intensities). split this into X_train and X_validation
-        y = digits['target']  # these are the labels (0-9). split this into y_train and y_validation.
-
-        X_train, X_validation, y_train, y_validation = train_test_split(X, y, test_size=0.2, random_state=random_seed)
 
         train_score_list = []
         val_score_list = []
 
-        # iterating over range of different values for hyperparameter while keeping track of score
-        for i in np.linspace(2 ** -2, 2 ** 2, 10):
-            tree = DecisionTreeClassifier(max_depth=i)
-            tree.fit(X_train, y_train)
-            train_score = tree.score(X_train, y_train)
-            val_score = tree.score(X_validation, y_validation)
+        X = digits['data']
+        y = digits['target']
+
+        for i in range(1, 20):
+            model = DecisionTreeClassifier(max_depth=i)
+            scores = Score(model, 'accuracy', x=X, y=y, random_seed=1234)
+            train_score = scores.scores[0]
+            val_score = scores.scores[1]
+
             train_score_list.append(train_score)
             val_score_list.append(val_score)
 
@@ -72,7 +78,6 @@ class TestClass:
         assert obs == exp
 
 
-
     def test_train_test_plot_ridge(self):
 
         random_seed = 1234
@@ -80,57 +85,130 @@ class TestClass:
         y = np.random.randn(n_samples)
         X = np.random.randn(n_samples, n_features)
 
-        mse_train_list = []
-        mse_test_list = []
+        train_score_list = []
+        val_score_list = []
 
-        X_train, X_validation, y_train, y_validation = train_test_split(X, y, test_size=0.2, random_state=random_seed)
-
-        # iterating over range of different values for hyperparameter while keeping track of score
         for i in np.linspace(2 ** -2, 2 ** 2, 10):
-            model = Ridge(alpha=i, fit_intercept=True, normalize=False, copy_X=True,
-                          max_iter=None, tol=0.001, solver='auto', random_state=None)
-            model.fit(X_train, y_train)
+            model = Ridge(alpha=i)
+            scores = Score(model, 'mse', x=X, y=y, random_seed=1234)
+            train_score = scores.scores[0]
+            val_score = scores.scores[1]
 
-            mean_squared_err = lambda y, yhat: np.mean((y - yhat) ** 2)
-            errors = [mean_squared_err(y_train, model.predict(X_train)),
-                      mean_squared_err(y_validation, model.predict(X_validation))]
+            train_score_list.append(train_score)
+            val_score_list.append(val_score)
 
-            mse_train_list.append(errors[0])
-            mse_test_list.append(errors[1])
-
-            exp = (mse_train_list, mse_test_list)
+            exp = (train_score_list, val_score_list)
 
             obs = train_test_plot(model=Ridge(), score_type="mse", x=X, y=y, hyperparameter="alpha",
                                   param_range=list(np.linspace(2 ** -2, 2 ** 2, 10)), random_seed=1234, verbose=True)
 
             assert exp == obs
 
+    def train_test_lasso_r2(self):
+        random_seed = 1234
+        n_samples, n_features = 10, 5
+        y = np.random.randn(n_samples)
+        X = np.random.randn(n_samples, n_features)
+
+        for i in np.linspace(2 ** -2, 2 ** 2, 10):
+            model = Lasso(alpha=i)
+            scores = Score(model, 'r2', x=X, y=y, random_seed=1234)
+            train_score = scores.scores[0]
+            val_score = scores.scores[1]
+
+            train_score_list.append(train_score)
+            val_score_list.append(val_score)
+
+        exp = (train_score_list, val_score_list)
+
+        obs = train_test_plot(model=Lasso(), score_type="r2", x=X, y=y,
+                              hyperparameter="alpha",
+                              param_range=list(list(np.linspace(2 ** -2, 2 ** 2, 10))), random_seed=1234, verbose=True)
+
+        def train_test_lasso_adjr2(self):
+            random_seed = 1234
+            n_samples, n_features = 10, 5
+            y = np.random.randn(n_samples)
+            X = np.random.randn(n_samples, n_features)
+
+            for i in np.linspace(2 ** -2, 2 ** 2, 10):
+                model = Lasso(alpha=i)
+                scores = Score(model, 'adj_r2', x=X, y=y, random_seed=1234)
+                train_score = scores.scores[0]
+                val_score = scores.scores[1]
+
+                train_score_list.append(train_score)
+                val_score_list.append(val_score)
+
+            exp = (train_score_list, val_score_list)
+
+            obs = train_test_plot(model=Lasso(), score_type="r2", x=X, y=y,
+                                  hyperparameter="alpha",
+                                  param_range=list(list(np.linspace(2 ** -2, 2 ** 2, 10))), random_seed=1234,
+                                  verbose=True)
 
     def test_no_input(self):
         """ Ensures that TypeError is raised if either of the inputs is missing/wrong. """
 
+        import pytest
+
+        # Test A
         with pytest.raises(TypeError):
             train_test_plot(model=None, score_type="accuracy", x=X, y=y, hyperparameter="max_depth",
                             param_range=list(range(1, 20)), random_seed=1234, verbose=True)
 
-        with pytest.raises(TypeError):
-            train_test_plot(model=DecisionTreeClassifier(), score_type=None, x=X, y=y, hyperparameter="max_depth",
-                            param_range=list(range(1, 20)), random_seed=1234, verbose=True)
-
+        # Test B
         with pytest.raises(TypeError):
             train_test_plot(model=DecisionTreeClassifier(), score_type="accuracy", x=None, y=y,
                             hyperparameter="max_depth",
                             param_range=list(range(1, 20)), random_seed=1234, verbose=True)
 
+        # Test C
         with pytest.raises(TypeError):
             train_test_plot(model=DecisionTreeClassifier(), score_type="accuracy", x=X, y=None,
                             hyperparameter="max_depth",
                             param_range=list(range(1, 20)), random_seed=1234, verbose=True)
 
+        # Test D
+        with pytest.raises(TypeError):
+            train_test_plot(model=DecisionTreeClassifier(), score_type=None, x=X, y=y, hyperparameter="max_depth",
+                            param_range=list(range(1, 20)), random_seed=1234, verbose=True)
+
+        # Test E
         with pytest.raises(TypeError):
             train_test_plot(model=DecisionTreeClassifier(), score_type="accuracy", x=X, y=y, hyperparameter=None,
                             param_range=list(range(1, 20)), random_seed=1234, verbose=True)
 
+        # Test F
+        with pytest.raises(TypeError):
+            train_test_plot(model=DecisionTreeClassifier(), score_type="accuracy", x=X, y=y, hyperparameter="max_depth",
+                            param_range=None, random_seed=1234, verbose=True)
+        # Test G
         with pytest.raises(TypeError):
             train_test_plot(model=DecisionTreeClassifier(), score_type="accuracy", x=X, y=y, hyperparameter="max_depth",
                             param_range=None, random_seed=None, verbose=True)
+
+        # Test H
+        with pytest.raises(TypeError):
+            train_test_plot(model=DecisionTreeClassifier(), score_type="accuracy", x=X, y=y, hyperparameter="max_depth",
+                            param_range=None, random_seed=1234, verbose=None)
+
+
+    def test_input_shape(self):
+        with pytest.raises(RuntimeError):
+            train_test_plot(model=DecisionTreeClassifier(), score_type="accuracy", x=X, y=np.array([1, 1, 1, 1]),
+                            hyperparameter="max_depth",
+                            param_range=list(range(1, 20)), random_seed=1234, verbose=True)
+
+
+    def test_wrong_parameter(self):
+        """ Ensures that ValueError if hyperparamter does not match model"""
+
+        with pytest.raises(ValueError):
+            train_test_plot(model=DecisionTreeClassifier(), score_type="accuracy", x=X, y=y, hyperparameter="alpha",
+                            param_range=list(range(1, 20)), random_seed=1234, verbose=True)
+
+        with pytest.raises(ValueError):
+            train_test_plot(model=Ridge(), score_type="mse", x=X, y=y, hyperparameter="max_depth",
+                            param_range=list(np.linspace(2 ** -2, 2 ** 2, 10)), random_seed=1234, verbose=True)
+

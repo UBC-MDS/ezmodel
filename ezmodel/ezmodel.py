@@ -4,7 +4,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier as RFC
 from sklearn.datasets import load_breast_cancer
 
-def test_train_plot(model, score_type, x, y, hyperparameter, param_range):
+
+def train_test_plot(model, score_type,
+                    x, y, hyperparameter, param_range, random_seed, verbose=False):
     """
     Creates plot of training and test error for an arbitrary sklearn model.
 
@@ -22,13 +24,151 @@ def test_train_plot(model, score_type, x, y, hyperparameter, param_range):
 
         param_range (list): Range of hyperparameter values to iterate over
 
+        random_seed (int): Default = None. If set to integer, defines the random train_test_split
+
+        verbose (boolean): Default = `False`. If set to `True` returns list of training and test score.
+                           Added for plot testing.
+
 
     Returns:
-        None. Calls plt.show() to display plot
-
-
+        none. Calls plt.show() to display plot
     """
-    pass
+
+    random_seed = random_seed
+
+    # testing input type for parameters
+
+    # Condition A
+    if str(type(model))[8:15] != 'sklearn':
+        raise TypeError("model must be an sklearn model")
+
+    # Condition B
+    if str(type(x))[14:21] != 'ndarray':
+        raise TypeError("x must be a numpy array")
+
+    # Condition C
+    if str(type(y))[14:21] != 'ndarray':
+        raise TypeError("y must be a numpy array")
+
+    # Condition D
+    if x.shape[0] != y.shape[0]:
+        raise RuntimeError("the number of rows in x and y has to be equal")
+
+    # Condition E
+    if not isinstance(score_type, str):
+        raise TypeError("score_type must be a string")
+
+    # Condition F
+    if not isinstance(hyperparameter, str):
+        raise TypeError("hyperparameter must be a string")
+
+    # Condition G
+    if not isinstance(param_range, list):
+        raise TypeError("param_range must be a list")
+
+    # Conition H
+    if not isinstance(random_seed, int):
+        raise TypeError("random_seed must be an integer")
+
+    # Condition I
+    if not isinstance(verbose, bool):
+        raise TypeError("verbose must be an boolean")
+
+
+
+    # initiating lists for plot
+    train_score_list = []
+    val_score_list = []
+    index_list = []
+
+    # model = str(type(model)).split(".")[-1][:-2]
+
+    # Condition J
+    if score_type == "accuracy":
+
+        # iterating over range of different values for hyperparameter while keeping track of score
+        for i in param_range:
+            model = model.set_params(**{str(hyperparameter): i})
+            scores = Score(model, 'accuracy', x=x, y=y, random_seed=random_seed)
+            train_score = scores.scores[0]
+            val_score = scores.scores[1]
+
+            train_score_list.append(train_score)
+            val_score_list.append(val_score)
+
+            index_list.append(i)
+
+    # Condition K
+    if score_type == "mse":
+
+        for i in param_range:
+            model = model.set_params(**{str(hyperparameter): i})
+            scores = Score(model, 'mse', x=x, y=y, random_seed=random_seed)
+            train_score = scores.scores[0]
+            val_score = scores.scores[1]
+
+            train_score_list.append(train_score)
+            val_score_list.append(val_score)
+
+            index_list.append(i)
+
+    # Condition L
+    if score_type == "r2":
+
+        for i in param_range:
+            model = model.set_params(**{str(hyperparameter): i})
+            scores = Score(model, 'r2', x=x, y=y, random_seed=random_seed)
+            train_score = scores.scores[0]
+            val_score = scores.scores[1]
+
+            train_score_list.append(train_score)
+            val_score_list.append(val_score)
+
+            index_list.append(i)
+
+    # Condition M
+    if score_type == "adj_r2":
+
+        for i in param_range:
+            model = model.set_params(**{str(hyperparameter): i})
+            scores = Score(model, 'adj_r2', x=x, y=y, random_seed=random_seed)
+            train_score = scores.scores[0]
+            val_score = scores.scores[1]
+
+            train_score_list.append(train_score)
+            val_score_list.append(val_score)
+
+            index_list.append(i)
+
+
+    # Condition N
+    # if score_type == "auc":
+
+    #   for i in param_range:
+    #       model = model.set_params(**{str(hyperparameter): i})
+    #       scores = Score(model, 'auc', x=x, y = y, random_seed = random_seed)
+    #       train_score = scores.scores[0]
+    #       val_score = scores.scores[1]
+
+    #       train_score_list.append(train_score)
+    #       val_score_list.append(val_score)
+
+    #       index_list.append(i)
+
+
+    # This if statement is only included for testing purposes - no test will be written
+    if verbose == True:
+        return train_score_list, val_score_list
+
+
+    else:
+        plt.plot(index_list, train_score_list, label="training {}".format(score_type))
+        plt.plot(index_list, val_score_list, label="test {}".format(score_type))
+        plt.legend()
+        plt.show()
+
+        return
+
 
 
 def regularization_plot(model, alpha, x, y, tol=1e-7):
