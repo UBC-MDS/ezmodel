@@ -1,3 +1,4 @@
+import pytest
 import numpy as np
 from sklearn.linear_model import Ridge, Lasso, LogisticRegression, LinearRegression
 from sklearn.datasets import load_boston, load_breast_cancer
