@@ -192,13 +192,13 @@ def regularization_plot(model, alpha, x, y, tol=1e-7):
         of non-zero features for each alpha value; if float/int: returns and displays coefficient magnitudes.
 
     """
-    # True: A, False: B
+    # conditional A
     if type(model) not in [type(Lasso()), type(Ridge()), type(LogisticRegression())]:
         raise TypeError("Model specified must have same type as Lasso(), Ridge(), or LogisticRegression()")
 
-    #True: C, False: D
+    # conditional B
     if not isinstance(alpha, list):
-        #True: E, False : F
+        # conditional C
         if isinstance(model, type(LogisticRegression())):
             fitted_model = model.set_params(**{'C':1/alpha})
             fitted_model.fit(x,y)
@@ -214,7 +214,7 @@ def regularization_plot(model, alpha, x, y, tol=1e-7):
         plt.show()
 
     else:
-        # True: G, False: H
+        # Conditional D
         if isinstance(model, type(LogisticRegression())):
             fitted_models = [clone(model).set_params(**{'C':1/a}) for a in alpha]
             fitted_models = [m.fit(x,y) for m in fitted_models]

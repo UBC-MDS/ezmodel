@@ -1,18 +1,14 @@
 
 ### `regularization_plot`
 
-Conditional statements and corresponding test, as labelled in the code. Branches are labelled A-H.
+Conditional statements and corresponding test, as labelled in the code. Labelled A-D, where `else` statement often corresponds to `False` outcome.
 
-|Statement| Corresponding Test|
+|Statement| True Test|False Test|
 |---------|-------------------|
-|A|`test_input_model_type`|
-|B|`test_nonzero_count_ridge`|
-|C|`test_nonzero_coefs_logistic`|
-|D|`test_nonzero_count_logistic`|
-|E|`test_nonzero_coefs_logistic`|
-|F|`test_nonzero_coefs_rigde`|
-|G|`test_nonzero_count_logistic`|
-|H|`test_nonzero_count_lasso`|
+|A|`test_input_model_type`|`test_nonzero_count_ridge`|
+|B|`test_nonzero_coefs_logistic`|`test_nonzero_count_logistic`|
+|C|`test_nonzero_coefs_logistic`|`test_nonzero_coefs_rigde`|
+|D|`test_nonzero_count_logistic`|`test_nonzero_count_lasso`|
 
 
 ### `train_test_split`
