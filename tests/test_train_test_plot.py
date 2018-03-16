@@ -43,7 +43,7 @@ class TestClass:
                               hyperparameter="max_depth",
                               param_range=list(range(1, 20)), random_seed=1234, verbose=True)
 
-        assert obs[0] == exp[0] #note: for some reason the test_errors are of by a margin of ~0.01
+        assert (abs((np.array(obs) - np.array(exp))) < 0.05).all()
 
 
     def test_train_test_plot_ridge(self):
@@ -73,6 +73,10 @@ class TestClass:
         assert exp[0] == obs[0] #note: for some reason the test_errors are of by a margin of ~0.01
 
     def train_test_lasso_r2(self):
+
+        train_score_list = []
+        val_score_list = []
+
         random_seed = 1234
         n_samples, n_features = 10, 5
         y = np.random.randn(n_samples)
@@ -92,9 +96,15 @@ class TestClass:
         obs = train_test_plot(model=Lasso(), score_type="r2", x=X, y=y,
                               hyperparameter="alpha",
                               param_range=list(list(np.linspace(2 ** -2, 2 ** 2, 10))), random_seed=1234, verbose=True)
-        assert exp[0] == obs[0] #note: for some reason the test_errors are of by a margin of ~0.01
+
+        assert (np.array(exp) == np.array(obs)).all()
+
 
         def train_test_lasso_adjr2(self):
+
+            train_score_list = []
+            val_score_list = []
+
             random_seed = 1234
             n_samples, n_features = 10, 5
             y = np.random.randn(n_samples)
@@ -111,11 +121,40 @@ class TestClass:
 
             exp = (train_score_list, val_score_list)
 
-            obs = train_test_plot(model=Lasso(), score_type="r2", x=X, y=y,
+            obs = train_test_plot(model=Lasso(), score_type="adj_r2", x=X, y=y,
                                   hyperparameter="alpha",
                                   param_range=list(list(np.linspace(2 ** -2, 2 ** 2, 10))), random_seed=1234,
                                   verbose=True)
-            assert exp[0] == obs[0] #note: for some reason the test_errors are of by a margin of ~0.01 
+
+            assert (np.array(exp) == np.array(obs)).all()
+
+    def train_test_lasso_mse(self):
+
+        train_score_list = []
+        val_score_list = []
+
+        random_seed = 1234
+        n_samples, n_features = 10, 5
+        y = np.random.randn(n_samples)
+        X = np.random.randn(n_samples, n_features)
+
+        for i in np.linspace(2 ** -2, 2 ** 2, 10):
+            model = Lasso(alpha=i)
+            scores = Score(model, 'mse', x=X, y=y, random_seed=1234)
+            train_score = scores.scores[0]
+            val_score = scores.scores[1]
+
+            train_score_list.append(train_score)
+            val_score_list.append(val_score)
+
+        exp = (train_score_list, val_score_list)
+
+        obs = train_test_plot(model=Lasso(), score_type="mse", x=X, y=y,
+                              hyperparameter="alpha",
+                              param_range=list(list(np.linspace(2 ** -2, 2 ** 2, 10))), random_seed=1234,
+                              verbose=True)
+
+        assert (np.array(exp) == np.array(obs)).all()
 
 
     def test_no_input(self):
