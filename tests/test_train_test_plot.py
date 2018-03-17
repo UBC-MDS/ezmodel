@@ -9,6 +9,7 @@ from sklearn.linear_model import Lasso
 from sklearn.linear_model import Ridge
 from sklearn import linear_model
 from numpy import random
+from ezmodel import ezmodel, Score
 
 
 import pytest
