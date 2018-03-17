@@ -2,8 +2,7 @@ import pytest
 import numpy as np
 from sklearn.linear_model import Ridge, Lasso, LogisticRegression, LinearRegression
 from sklearn.datasets import load_boston, load_breast_cancer
-from ezmodel import ezmodel, Score
-
+from ezmodel.ezmodel.ezmodel import regularization_plot
 
 def test_input_model_type():
     """Checks TypeError is raised when input model isn't of allowed type."""

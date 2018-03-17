@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+import numpy as np
 
 class Score(object):
     """ Scoring object. Allows computation of an arbitrary score metric on an arbitrary sklearn model. """
