@@ -358,21 +358,6 @@ class TestClass:
         for key in explicit_results.keys():
             assert np.isclose(all(score_instance.scores[key]), all(explicit_results[key])) # Check actual results
 
-    def test_str_method(self):
-        """Covers branches J, K, L, and M"""
-        x, y = load_breast_cancer(True)
-
-        score_instanceJ = Score(RFC(), 'mse', x=x, y=y, random_seed=1234)
-        score_instanceK = Score(RFC(), ['mse', 'accuracy'], x=x, y=y, random_seed=1234)
-        score_instanceL = Score(RFC(), 'mse', random_seed=1234)
-        score_instanceM = Score(RFC(), ['mse', 'accuracy'], random_seed=1234)
-
-        assert score_instanceJ.__str__() == "Score object for: \nModel Type: <class 'sklearn.ensemble.forest.RandomForestClassifier'> \nScore: mse=[0.0, 0.06993006993006994]"
-        assert score_instanceK.__str__() == "Score object for: \nModel Type: <class 'sklearn.ensemble.forest.RandomForestClassifier'> \nScores: [('mse', [0.0, 0.07692307692307693]), ('accuracy', [0.9976525821596244, 0.9300699300699301])]"
-        assert score_instanceL.__str__() == "Score object for: \nModel Type: <class 'sklearn.ensemble.forest.RandomForestClassifier'> \nScore Type: mse"
-        assert score_instanceM.__str__() == "Score object for: \nModel Type: <class 'sklearn.ensemble.forest.RandomForestClassifier'> \nScore Types: ['mse', 'accuracy']"
-
-
     def test_calculate(self):
         """ Covers branches N - S"""
         x, y = load_breast_cancer(True)
