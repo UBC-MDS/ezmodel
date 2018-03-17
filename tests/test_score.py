@@ -318,7 +318,7 @@ class TestClass:
 
 
     def test_outputs_str(self):
-        clf = RFC(random_state=1234)
+        clf = DTC()
         x, y = load_breast_cancer(True)
         xt, xv, yt, yv = train_test_split(x,y, test_size=0.2, random_state=1234)
 
@@ -329,7 +329,7 @@ class TestClass:
         val_pred = clf.predict(xv)
         explicit_results = [mse(i, j) for i, j in zip([yt, yv], [train_pred, val_pred])]
 
-        score_instance = Score(RFC(random_state=1234), 'mse', random_seed=1234)
+        score_instance = Score(DTC(), 'mse', random_seed=1234)
         score_instance.calculate(x, y)
         assert isinstance(score_instance.scores, list)
         assert np.isclose(all(score_instance.scores), all(explicit_results))
