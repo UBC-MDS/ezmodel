@@ -10,7 +10,7 @@ from sklearn.linear_model import Ridge
 from sklearn import linear_model
 from numpy import random
 from ezmodel.ezmodel import train_test_plot
-from eezmodel.Score import Score
+from ezmodel.Score import Score
 
 
 import pytest
