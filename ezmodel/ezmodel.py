@@ -1,5 +1,11 @@
 #!/usr/bin/env python
 
+import numpy as np
+import pandas as pd
+from ezmodel.Score import Score
+import matplotlib.pyplot as plt
+from sklearn.linear_model import Ridge, Lasso, LogisticRegression, LinearRegression
+from sklearn import clone
 
 def train_test_plot(model, score_type,
                     x, y, hyperparameter, param_range, random_seed, verbose=False):
