@@ -70,89 +70,93 @@ def train_test_plot(model, score_type,
     if not isinstance(verbose, bool):
         raise TypeError("verbose must be an boolean")
 
-
+    # Condition J
+    if score_type not in ["r2", "mse", "r2", "adj_r2", "accuracy"]:
+        raise ValueError("score_type must be one of: 'r2', 'mse', 'r2', 'adj_r2', 'accuracy'")
 
     # initiating lists for plot
     train_score_list = []
     val_score_list = []
     index_list = []
 
-    # model = str(type(model)).split(".")[-1][:-2]
-
-    # Condition J
+    # Condition K
     if score_type == "accuracy":
 
         # iterating over range of different values for hyperparameter while keeping track of score
-        for i in param_range:
-            model = model.set_params(**{str(hyperparameter): i})
-            scores = Score(model, 'accuracy', x=x, y=y, random_seed=random_seed)
-            train_score = scores.scores[0]
-            val_score = scores.scores[1]
+        try:
+            for i in param_range:
+                model = model.set_params(**{str(hyperparameter): i})
+                scores = Score(model, 'accuracy', x=x, y=y, random_seed=random_seed)
+                train_score = scores.scores[0]
+                val_score = scores.scores[1]
 
-            train_score_list.append(train_score)
-            val_score_list.append(val_score)
+                train_score_list.append(train_score)
+                val_score_list.append(val_score)
 
-            index_list.append(i)
+                index_list.append(i)
 
-    # Condition K
+        except ValueError:
+            raise ValueError("Please, check sklearn docs for correct combination of 'model' and 'hyperparameter'")
+            return
+
+            # Condition L
     if score_type == "mse":
 
-        for i in param_range:
-            model = model.set_params(**{str(hyperparameter): i})
-            scores = Score(model, 'mse', x=x, y=y, random_seed=random_seed)
-            train_score = scores.scores[0]
-            val_score = scores.scores[1]
+        try:
+            for i in param_range:
+                model = model.set_params(**{str(hyperparameter): i})
+                scores = Score(model, 'mse', x=x, y=y, random_seed=random_seed)
+                train_score = scores.scores[0]
+                val_score = scores.scores[1]
 
-            train_score_list.append(train_score)
-            val_score_list.append(val_score)
+                train_score_list.append(train_score)
+                val_score_list.append(val_score)
 
-            index_list.append(i)
+                index_list.append(i)
 
-    # Condition L
+        except ValueError:
+            raise ValueError("Please, check sklearn docs for correct combination of 'model' and 'hyperparameter'")
+            return
+
+            # Condition M
     if score_type == "r2":
 
-        for i in param_range:
-            model = model.set_params(**{str(hyperparameter): i})
-            scores = Score(model, 'r2', x=x, y=y, random_seed=random_seed)
-            train_score = scores.scores[0]
-            val_score = scores.scores[1]
+        try:
+            for i in param_range:
+                model = model.set_params(**{str(hyperparameter): i})
+                scores = Score(model, 'r2', x=x, y=y, random_seed=random_seed)
+                train_score = scores.scores[0]
+                val_score = scores.scores[1]
 
-            train_score_list.append(train_score)
-            val_score_list.append(val_score)
+                train_score_list.append(train_score)
+                val_score_list.append(val_score)
 
-            index_list.append(i)
+                index_list.append(i)
 
-    # Condition M
+        except ValueError:
+            raise ValueError("Please, check sklearn docs for correct combination of 'model' and 'hyperparameter'")
+            return
+
+            # Condition N
     if score_type == "adj_r2":
 
-        for i in param_range:
-            model = model.set_params(**{str(hyperparameter): i})
-            scores = Score(model, 'adj_r2', x=x, y=y, random_seed=random_seed)
-            train_score = scores.scores[0]
-            val_score = scores.scores[1]
+        try:
+            for i in param_range:
+                model = model.set_params(**{str(hyperparameter): i})
+                scores = Score(model, 'adj_r2', x=x, y=y, random_seed=random_seed)
+                train_score = scores.scores[0]
+                val_score = scores.scores[1]
 
-            train_score_list.append(train_score)
-            val_score_list.append(val_score)
+                train_score_list.append(train_score)
+                val_score_list.append(val_score)
 
-            index_list.append(i)
+                index_list.append(i)
 
+        except ValueError:
+            raise ValueError("Please, check sklearn docs for correct combination of 'model' and 'hyperparameter'")
+            return
 
-    # Condition N
-    # if score_type == "auc":
-
-    #   for i in param_range:
-    #       model = model.set_params(**{str(hyperparameter): i})
-    #       scores = Score(model, 'auc', x=x, y = y, random_seed = random_seed)
-    #       train_score = scores.scores[0]
-    #       val_score = scores.scores[1]
-
-    #       train_score_list.append(train_score)
-    #       val_score_list.append(val_score)
-
-    #       index_list.append(i)
-
-
-    # This if statement is only included for testing purposes - no test will be written
+            # This if statement is only included for testing purposes - no test will be written
     if verbose == True:
         return train_score_list, val_score_list
 
