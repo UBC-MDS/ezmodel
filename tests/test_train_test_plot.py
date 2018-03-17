@@ -4,7 +4,7 @@ from sklearn.ensemble import RandomForestClassifier as RFC
 from sklearn.datasets import load_breast_cancer
 from sklearn.model_selection import train_test_split
 from sklearn.datasets import load_digits
-from sklearn.linear_model import  LogisticRegression
+from sklearn.linear_model import LogisticRegression
 from sklearn.linear_model import Lasso
 from sklearn.linear_model import Ridge
 from sklearn import linear_model
@@ -43,7 +43,14 @@ class TestClass:
                               hyperparameter="max_depth",
                               param_range=list(range(1, 20)), random_seed=1234, verbose=True)
 
-        assert obs[0] == exp[0] #note: for some reason the test_errors are of by a margin of ~0.01
+        assert (abs((np.array(obs) - np.array(exp))) < 0.05).all()
+
+    #Test J
+    def test_wrong_hyp(self):
+        with pytest.raises(ValueError):
+            train_test_plot(model=RFC(), score_type="accuracy", x=X, y=y,
+                            hyperparameter="cp",
+                            param_range=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10], random_seed=1234)
 
 
     def test_train_test_plot_ridge(self):
@@ -70,9 +77,13 @@ class TestClass:
         obs = train_test_plot(model=Ridge(), score_type="mse", x=X, y=y, hyperparameter="alpha",
                               param_range=list(np.linspace(2 ** -2, 2 ** 2, 10)), random_seed=1234, verbose=True)
 
-        assert exp[0] == obs[0] #note: for some reason the test_errors are of by a margin of ~0.01
+        assert exp == obs
 
-    def train_test_lasso_r2(self):
+    def test_train_test_lasso_r2(self):
+
+        train_score_list = []
+        val_score_list = []
+
         random_seed = 1234
         n_samples, n_features = 10, 5
         y = np.random.randn(n_samples)
@@ -92,9 +103,14 @@ class TestClass:
         obs = train_test_plot(model=Lasso(), score_type="r2", x=X, y=y,
                               hyperparameter="alpha",
                               param_range=list(list(np.linspace(2 ** -2, 2 ** 2, 10))), random_seed=1234, verbose=True)
-        assert exp[0] == obs[0] #note: for some reason the test_errors are of by a margin of ~0.01
+
+        assert (np.array(exp) == np.array(obs)).all()
 
         def train_test_lasso_adjr2(self):
+
+            train_score_list = []
+            val_score_list = []
+
             random_seed = 1234
             n_samples, n_features = 10, 5
             y = np.random.randn(n_samples)
@@ -111,17 +127,16 @@ class TestClass:
 
             exp = (train_score_list, val_score_list)
 
-            obs = train_test_plot(model=Lasso(), score_type="r2", x=X, y=y,
+            obs = train_test_plot(model=Lasso(), score_type="adj_r2", x=X, y=y,
                                   hyperparameter="alpha",
                                   param_range=list(list(np.linspace(2 ** -2, 2 ** 2, 10))), random_seed=1234,
                                   verbose=True)
-            assert exp[0] == obs[0] #note: for some reason the test_errors are of by a margin of ~0.01 
+
+            assert (np.array(exp) == np.array(obs)).all()
 
 
     def test_no_input(self):
         """ Ensures that TypeError is raised if either of the inputs is missing/wrong. """
-
-
 
         # Test A
         with pytest.raises(TypeError):
@@ -165,25 +180,33 @@ class TestClass:
                             param_range=None, random_seed=1234, verbose=None)
 
 
+
     def test_input_shape(self):
-
-
-
+        """Tests if data input is of the right shape"""
         with pytest.raises(RuntimeError):
             train_test_plot(model=DecisionTreeClassifier(), score_type="accuracy", x=X, y=np.array([1, 1, 1, 1]),
                             hyperparameter="max_depth",
                             param_range=list(range(1, 20)), random_seed=1234, verbose=True)
 
 
-    def test_wrong_parameter(self):
+    def test_wrong_combination(self):
         """ Ensures that ValueError if hyperparamter does not match model"""
 
-
-        with pytest.raises(ValueError):
-            train_test_plot(model=DecisionTreeClassifier(), score_type="accuracy", x=X, y=y, hyperparameter="alpha",
-                            param_range=list(range(1, 20)), random_seed=1234, verbose=True)
-
+        # Test K
         with pytest.raises(ValueError):
             train_test_plot(model=Ridge(), score_type="mse", x=X, y=y, hyperparameter="max_depth",
                             param_range=list(np.linspace(2 ** -2, 2 ** 2, 10)), random_seed=1234, verbose=True)
+
+        # Test L
+        with pytest.raises(ValueError):
+            train_test_plot(model=Lasso(), score_type="mse", x=X, y=y,
+                            hyperparameter="cp",
+                            param_range=list(list(np.linspace(2 ** -2, 2 ** 2, 10))), random_seed=1234,
+                            verbose=True)
+        #Test M
+        with pytest.raises(ValueError):
+            train_test_plot(model=Lasso(), score_type="mse", x=X, y=y,
+                            hyperparameter="cp",
+                            param_range=list(list(np.linspace(2 ** -2, 2 ** 2, 10))), random_seed=1234,
+                            verbose=True)
 
