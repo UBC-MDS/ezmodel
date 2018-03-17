@@ -1,8 +1,7 @@
 
 ### `regularization_plot`
 
-Conditional statements and corresponding test, as labelled in the code. Branches are labelled A-H.
-
+Conditional statements and corresponding test, as labelled in the code. Labelled A-D, where `else` statement often corresponds to `False` outcome.
 
 |Statement| True Test|False Test|
 |---------|-------------------|
