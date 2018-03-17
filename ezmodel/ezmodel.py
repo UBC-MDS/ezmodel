@@ -2,7 +2,6 @@
 
 import numpy as np
 import pandas as pd
-from ezmodel.Score import Score
 import matplotlib.pyplot as plt
 from sklearn.linear_model import Ridge, Lasso, LogisticRegression, LinearRegression
 from sklearn import clone
