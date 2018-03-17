@@ -170,7 +170,6 @@ def train_test_plot(model, score_type,
         plt.plot(index_list, train_score_list, label="training {}".format(score_type))
         plt.plot(index_list, val_score_list, label="test {}".format(score_type))
         plt.legend()
-        plt.show()
 
         return
 
@@ -220,7 +219,6 @@ def regularization_plot(model, alpha, x, y, tol=1e-7):
 
         plt.plot(range(len(coefs)), coefs, linestyle='-', marker='o')
         plt.title("Magnitude of Nonzero Coefficients")
-        plt.show()
 
     else:
         # Conditional D
@@ -236,7 +234,6 @@ def regularization_plot(model, alpha, x, y, tol=1e-7):
 
         plt.plot(alpha, coefs, linestyle='-', marker='o')
         plt.title("Number of Nonzero Coefficients")
-        plt.show()
 
     return coefs
 
