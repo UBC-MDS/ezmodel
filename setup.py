@@ -11,7 +11,7 @@ setup(
     keywords='machine learning',
     url='https://github.com/UBC-MDS/ezmodel',
     packages=find_packages(),
-    install_requires=['setuptools', 'scipy','numpy', 'sklearn', 'matplotlib'],
+    install_requires=['setuptools', 'scipy','numpy', 'sklearn', 'matplotlib', 'pandas'],
     classifiers=[],
     include_package_data=True
 )
