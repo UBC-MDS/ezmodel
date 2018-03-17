@@ -6,7 +6,7 @@ setup(
     author=['Alex Kleefeldt', 'Sean Conley', 'Tyler Roberts'],
     author_email='',
     description='Simple modelling diagnostic and workflow tools for use with sklearn',
-    long_description=read('README.md'),
+    long_description='README.md',
     license='',
     keywords='machine learning',
     url='https://github.com/UBC-MDS/ezmodel',
