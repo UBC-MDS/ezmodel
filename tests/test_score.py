@@ -313,7 +313,7 @@ class TestClass:
         with pytest.raises(TypeError):
             score_instanceH = Score(RFC(), 'mse', y)
         score_instanceI = Score(RFC(), 'mse')
-        assert isinstance(score_instanceI, RFC())
+        assert isinstance(score_instanceI, type(RFC()))
 
 
     def test_outputs_str(self):
