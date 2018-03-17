@@ -1,3 +1,4 @@
+from sklearn.tree import DecisionTreeClassifier as DTC
 from sklearn.ensemble import RandomForestClassifier as RFC
 from sklearn.datasets import load_breast_cancer
 from sklearn.model_selection import train_test_split
@@ -309,7 +310,7 @@ class TestClass:
         with pytest.raises(TypeError):
             score_instanceF = Score(RFC(), 'mse', x)
         score_instanceG = Score(RFC(), 'mse', x, y)
-        assert score_instanceG.x == x
+        assert score_instanceG.x.all() == x.all()
         with pytest.raises(TypeError):
             score_instanceH = Score(RFC(), 'mse', y)
         score_instanceI = Score(RFC(), 'mse')
@@ -317,7 +318,7 @@ class TestClass:
 
 
     def test_outputs_str(self):
-        clf = RFC()
+        clf = RFC(random_state=1234)
         x, y = load_breast_cancer(True)
         xt, xv, yt, yv = train_test_split(x,y, test_size=0.2, random_state=1234)
 
@@ -328,7 +329,7 @@ class TestClass:
         val_pred = clf.predict(xv)
         explicit_results = [mse(i, j) for i, j in zip([yt, yv], [train_pred, val_pred])]
 
-        score_instance = Score(RFC(), 'mse', random_seed=1234)
+        score_instance = Score(RFC(random_state=1234), 'mse', random_seed=1234)
         score_instance.calculate(x, y)
         assert isinstance(score_instance.scores, list)
         assert np.isclose(all(score_instance.scores), all(explicit_results))
@@ -337,7 +338,7 @@ class TestClass:
         x, y = load_breast_cancer(True)
         xt, xv, yt, yv = train_test_split(x, y, test_size=0.2, random_state=1234)
 
-        clf = RFC()
+        clf = DTC()
         clf.fit(xt, yt)
         train_pred = clf.predict(xt)
         val_pred = clf.predict(xv)
@@ -346,17 +347,17 @@ class TestClass:
         acc = lambda y_true, y_pred: np.mean(y_true == y_pred)
 
         explicit_results = dict()
-        explicit_results['mse'] = [mse(i, j) for i, j in zip([yt,yv], [train_pred, val_pred])]
-        explicit_results['accuracy'] = [acc(i, j) for i, j in zip([yt,yv], [train_pred, val_pred])]
+        explicit_results['mse'] = [mse(i, j) for i, j in zip([yt, yv], [train_pred, val_pred])]
+        explicit_results['accuracy'] = [acc(i, j) for i, j in zip([yt, yv], [train_pred, val_pred])]
 
-        score_instance = Score(RFC(), ['mse', 'accuracy'], random_seed=1234)
+        score_instance = Score(DTC(), ['mse', 'accuracy'], random_seed=1234)
         score_instance.calculate(x, y)
 
         assert isinstance(score_instance.scores, dict) # Check type of output
         assert isinstance(score_instance.scores['mse'], list) # Check type of dict values
         assert isinstance(score_instance.scores['accuracy'], list) # Check type of dict values
         for key in explicit_results.keys():
-            assert np.isclose(all(score_instance.scores[key]), all(explicit_results[key])) # Check actual results
+            assert np.isclose(all(score_instance.scores[key]), all(explicit_results[key]))  # Check actual results
 
     def test_calculate(self):
         """ Covers branches N - S"""
