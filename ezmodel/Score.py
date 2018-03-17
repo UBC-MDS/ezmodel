@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import numpy as np
+from ezmodel.ezmodel import _coerce
 
 class Score(object):
     """ Scoring object. Allows computation of an arbitrary score metric on an arbitrary sklearn model. """
