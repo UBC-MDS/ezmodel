@@ -1,1 +1,1 @@
-from . import Score, ezmodel
+from . import ezmodel
