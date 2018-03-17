@@ -16,6 +16,8 @@ from ezmodel.Score import Score
 import pytest
 import numpy as np
 import pandas as pd
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 
@@ -211,4 +213,3 @@ class TestClass:
                             hyperparameter="cp",
                             param_range=list(list(np.linspace(2 ** -2, 2 ** 2, 10))), random_seed=1234,
                             verbose=True)
-

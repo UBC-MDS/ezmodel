@@ -2,6 +2,8 @@
 
 import numpy as np
 import pandas as pd
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from sklearn.linear_model import Ridge, Lasso, LogisticRegression, LinearRegression
 from sklearn import clone
