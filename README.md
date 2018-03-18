@@ -1,5 +1,6 @@
 # ezmodel/ezmodelR
 
+https://travis-ci.org/UBC-MDS/ezmodel.svg?branch=master
 
 # Contributors
 * Alexander Kleefeldt
