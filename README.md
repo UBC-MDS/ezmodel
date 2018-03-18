@@ -52,7 +52,7 @@ Score(LinearRegression(), 'adj_r2', x, y)
 Installation is straightforward with `pip`:
 
 ```
-pip install git+git://github.com/UBC-MDS/ezmodel
+pip install git+https://github.com/UBC-MDS/ezmodel
 ```
 
 # Description of Landscape
