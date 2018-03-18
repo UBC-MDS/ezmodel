@@ -4,7 +4,7 @@
 Conditional statements and corresponding test, as labelled in the code. Labelled A-D, where `else` statement often corresponds to `False` outcome.
 
 |Statement| True Test|False Test|
-|---------|-------------------|
+|---------|-------------------|---|
 |A|`test_input_model_type`|`test_nonzero_count_ridge`|
 |B|`test_nonzero_coefs_logistic`|`test_nonzero_count_logistic`|
 |C|`test_nonzero_coefs_logistic`|`test_nonzero_coefs_rigde`|
