@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import numpy as np
 from sklearn.model_selection import train_test_split
-from ezmodel.ezmodel import _coerce
 
 class Score(object):
     """ Scoring object. Allows computation of an arbitrary score metric on an arbitrary sklearn model. """
@@ -215,6 +214,28 @@ class Score(object):
         """ Computes the number of false negatives in a set of predictions """
         return sum([1 for i in range(len(y_true)) if y_true[i].all() == 0 and y_pred[i].all() == 0])
 
+    def _coerce(self, x):
+        """
+        Utility method to coerce data into the correct types to be passed to sklearn
+
+        Args:
+            x (??): Data to be passed to a model.
+
+        Returns:
+            np.ndarray containing the data from x
+
+        Notes:
+            Works for pandas DataFrames and nested lists currently. Investigating other types that need coercing.
+        """
+        if isinstance(x, pd.DataFrame):
+            return pd.as_matrix(x)
+        elif isinstance(x, list):
+            return np.asarray(x)
+        elif not isinstance(x, np.ndarray):
+            raise TypeError("{} is currently not supported. Please input a numpy array, pandas DataFrame, or nested list".format(type(x)))
+        else:
+            return x
+
     def calculate(self, x, y, score_type=None):
         """
         Computes values for scores if x and y were not provided at intialization.
@@ -232,8 +253,8 @@ class Score(object):
                                    training and validation error.
         """
         # Type Checking:
-        self.x = _coerce(x)
-        self.y = _coerce(y)
+        self.x = self._coerce(x)
+        self.y = self._coerce(y)
 
         if score_type is None:  # N
             score_type = self.score_type

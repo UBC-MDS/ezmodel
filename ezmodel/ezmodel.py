@@ -242,24 +242,3 @@ def regularization_plot(model, alpha, x, y, tol=1e-7):
 
 
 
-def _coerce(x):
-    """
-    Utility function to coerce data into the correct types to be passed to sklearn
-
-    Args:
-        x (??): Data to be passed to a model.
-
-    Returns:
-        np.ndarray containing the data from x
-
-    Notes:
-        Works for pandas DataFrames and nested lists currently. Investigating other types that need coercing.
-    """
-    if isinstance(x, pd.DataFrame):
-        return pd.as_matrix(x)
-    elif isinstance(x, list):
-        return np.asarray(x)
-    elif not isinstance(x, np.ndarray):
-        raise TypeError("{} is currently not supported. Please input a numpy array, pandas DataFrame, or nested list".format(type(x)))
-    else:
-        return x
