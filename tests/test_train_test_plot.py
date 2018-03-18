@@ -51,6 +51,9 @@ class TestClass:
 
     #Test J
     def test_wrong_hyp(self):
+        digits = load_digits()
+        X = digits['data']
+        y = digits['target']
         with pytest.raises(ValueError):
             train_test_plot(model=RFC(), score_type="accuracy", x=X, y=y,
                             hyperparameter="cp",
@@ -141,6 +144,10 @@ class TestClass:
 
     def test_no_input(self):
         """ Ensures that TypeError is raised if either of the inputs is missing/wrong. """
+        
+        digits = load_digits()
+        X = digits['data']
+        y = digits['target']
 
         # Test A
         with pytest.raises(TypeError):
@@ -187,6 +194,11 @@ class TestClass:
 
     def test_input_shape(self):
         """Tests if data input is of the right shape"""
+        
+        digits = load_digits()
+        X = digits['data']
+        y = digits['target']
+        
         with pytest.raises(RuntimeError):
             train_test_plot(model=DecisionTreeClassifier(), score_type="accuracy", x=X, y=np.array([1, 1, 1, 1]),
                             hyperparameter="max_depth",
@@ -195,6 +207,10 @@ class TestClass:
 
     def test_wrong_combination(self):
         """ Ensures that ValueError if hyperparamter does not match model"""
+        
+        digits = load_digits()
+        X = digits['data']
+        y = digits['target']
 
         # Test K
         with pytest.raises(ValueError):
