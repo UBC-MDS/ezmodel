@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import numpy as np
+from sklearn.model_selection import train_test_split
 from ezmodel.ezmodel import _coerce
 
 class Score(object):

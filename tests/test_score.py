@@ -1,3 +1,4 @@
+from sklearn.tree import DecisionTreeClassifier as DTC
 from sklearn.ensemble import RandomForestClassifier as RFC
 from sklearn.datasets import load_breast_cancer
 from sklearn.model_selection import train_test_split
@@ -309,15 +310,15 @@ class TestClass:
         with pytest.raises(TypeError):
             score_instanceF = Score(RFC(), 'mse', x)
         score_instanceG = Score(RFC(), 'mse', x, y)
-        assert score_instanceG.x == x
+        assert score_instanceG.x.all() == x.all()
         with pytest.raises(TypeError):
             score_instanceH = Score(RFC(), 'mse', y)
         score_instanceI = Score(RFC(), 'mse')
-        assert isinstance(score_instanceI, type(RFC()))
+        assert isinstance(score_instanceI.model, type(RFC()))
 
 
     def test_outputs_str(self):
-        clf = RFC()
+        clf = DTC()
         x, y = load_breast_cancer(True)
         xt, xv, yt, yv = train_test_split(x,y, test_size=0.2, random_state=1234)
 
@@ -328,7 +329,7 @@ class TestClass:
         val_pred = clf.predict(xv)
         explicit_results = [mse(i, j) for i, j in zip([yt, yv], [train_pred, val_pred])]
 
-        score_instance = Score(RFC(), 'mse', random_seed=1234)
+        score_instance = Score(DTC(), 'mse', random_seed=1234)
         score_instance.calculate(x, y)
         assert isinstance(score_instance.scores, list)
         assert np.isclose(all(score_instance.scores), all(explicit_results))
@@ -337,7 +338,7 @@ class TestClass:
         x, y = load_breast_cancer(True)
         xt, xv, yt, yv = train_test_split(x, y, test_size=0.2, random_state=1234)
 
-        clf = RFC()
+        clf = DTC()
         clf.fit(xt, yt)
         train_pred = clf.predict(xt)
         val_pred = clf.predict(xv)
@@ -346,32 +347,17 @@ class TestClass:
         acc = lambda y_true, y_pred: np.mean(y_true == y_pred)
 
         explicit_results = dict()
-        explicit_results['mse'] = [mse(i, j) for i, j in zip([yt,yv], [train_pred, val_pred])]
-        explicit_results['accuracy'] = [acc(i, j) for i, j in zip([yt,yv], [train_pred, val_pred])]
+        explicit_results['mse'] = [mse(i, j) for i, j in zip([yt, yv], [train_pred, val_pred])]
+        explicit_results['accuracy'] = [acc(i, j) for i, j in zip([yt, yv], [train_pred, val_pred])]
 
-        score_instance = Score(RFC(), ['mse', 'accuracy'], random_seed=1234)
+        score_instance = Score(DTC(), ['mse', 'accuracy'], random_seed=1234)
         score_instance.calculate(x, y)
 
         assert isinstance(score_instance.scores, dict) # Check type of output
         assert isinstance(score_instance.scores['mse'], list) # Check type of dict values
         assert isinstance(score_instance.scores['accuracy'], list) # Check type of dict values
         for key in explicit_results.keys():
-            assert np.isclose(all(score_instance.scores[key]), all(explicit_results[key])) # Check actual results
-
-    def test_str_method(self):
-        """Covers branches J, K, L, and M"""
-        x, y = load_breast_cancer(True)
-
-        score_instanceJ = Score(RFC(), 'mse', x=x, y=y, random_seed=1234)
-        score_instanceK = Score(RFC(), ['mse', 'accuracy'], x=x, y=y, random_seed=1234)
-        score_instanceL = Score(RFC(), 'mse', random_seed=1234)
-        score_instanceM = Score(RFC(), ['mse', 'accuracy'], random_seed=1234)
-
-        assert score_instanceJ.__str__() == "Score object for: \nModel Type: <class 'sklearn.ensemble.forest.RandomForestClassifier'> \nScore: mse=[0.0, 0.06993006993006994]"
-        assert score_instanceK.__str__() == "Score object for: \nModel Type: <class 'sklearn.ensemble.forest.RandomForestClassifier'> \nScores: [('mse', [0.0, 0.07692307692307693]), ('accuracy', [0.9976525821596244, 0.9300699300699301])]"
-        assert score_instanceL.__str__() == "Score object for: \nModel Type: <class 'sklearn.ensemble.forest.RandomForestClassifier'> \nScore Type: mse"
-        assert score_instanceM.__str__() == "Score object for: \nModel Type: <class 'sklearn.ensemble.forest.RandomForestClassifier'> \nScore Types: ['mse', 'accuracy']"
-
+            assert np.isclose(all(score_instance.scores[key]), all(explicit_results[key]))  # Check actual results
 
     def test_calculate(self):
         """ Covers branches N - S"""
