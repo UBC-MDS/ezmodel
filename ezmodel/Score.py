@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 import numpy as np
 import pandas as pd
+import sys
 from sklearn.model_selection import train_test_split
 
 class Score(object):
     """ Scoring object. Allows computation of an arbitrary score metric on an arbitrary sklearn model. """
 
-    def __init__(self, model, score_type='mse', x=None, y=None, random_seed=np.random.randint(1, 99999999999999)):
+    def __init__(self, model, score_type='mse', x=None, y=None, random_seed=np.random.randint(1, sys.maxint)):
         """
         Constructor for score object. Adds in the model as well as the score type you are looking for.
         # Could score_type be a list?

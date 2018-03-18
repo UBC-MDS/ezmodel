@@ -1,4 +1,4 @@
-# ezmodel/ezmodelR
+# ezmodel
 [![Build Status](https://travis-ci.org/UBC-MDS/ezmodel.svg?branch=master)](https://travis-ci.org/UBC-MDS/ezmodel)
 
 # Contributors
@@ -61,3 +61,5 @@ There exists a limited ability to complete all of these tasks within both `sklea
 extracted data (e.g. coefficients, predictions, etc.), or only offer limited diagnostics (e.g. unadjusted R^2 scores). Users of these packages frequently find
 themselves repeating the same workflow, for example, splitting the dataset, training the model, and plotting training/validation error. This package will
 streamline this process.
+
+[Here](https://github.com/UBC-MDS/ezmodelR/) is a link to the R version of this package. It implements similar tools using `caret` to train models.
