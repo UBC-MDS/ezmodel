@@ -10,7 +10,7 @@ Conditional statements and corresponding test, as labelled in the code. Labelled
 |C|`test_nonzero_coefs_logistic`|`test_nonzero_coefs_rigde`|
 |D|`test_nonzero_count_logistic`|`test_nonzero_count_lasso`|
 
-### `train_test_split`
+### `train_test_plot`
 
 Conditional statements and corresponding test, as labelled in the code. Branches are labelled A-M.
 
@@ -31,3 +31,18 @@ Conditional statements and corresponding test, as labelled in the code. Branches
 |L|`test_train_test_plot_ridge`|`test_train_test_plot_lasso_r2`|
 |M|`test_train_test_plot_lasso_r2`|`test_train_test_plot_lasso_adjr2`|
 |N|`test_train_test_plot_lasso_adjr2`|`test_train_test_plot_tree`|
+
+
+
+### Integration Test
+
+Please, note that `regularization_plot` does not interact with any other functions in the package.  
+
+`train_test_plot` uses the score computed by the `Score` function of the package. Thereofore, the following functions test for smooth interaction of `Score` and `test_train_plot`:
+
+|Score Type|Test|
+|---|---|
+|accuracy|`test_train_test_plot_tree`|
+|r2|`test_train_test_plot_lasso_r2`|
+|adjusted r2|`test_train_test_plot_lasso_adjr2`|
+|mse|`test_train_test_plot_ridge`|
