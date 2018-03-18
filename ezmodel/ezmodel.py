@@ -7,7 +7,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from sklearn.linear_model import Ridge, Lasso, LogisticRegression, LinearRegression
 from sklearn import clone
-#from ezmodel.Score import Score
+from ezmodel.Score import Score
 
 def train_test_plot(model, score_type,
                     x, y, hyperparameter, param_range, random_seed, verbose=False):
